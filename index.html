@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<title>Saarkesh — Video Editor, Colombo</title>
+<meta name="description" content="Saarkesh — video editor based in Colombo. Reels &amp; social edits, wedding films, YouTube edits and storytelling videos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+  /* Set theme before first paint so there is no flash */
+  try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') { document.documentElement.dataset.theme = t; } } catch (e) {}
+</script>
+<style>
+  /* ============ TOKENS ============ */
+  :root {
+    --bg: #121211;
+    --bg-rgb: 18, 18, 17;
+    --fg: #f2f2ee;
+    --muted: rgba(242, 242, 238, 0.6);
+    --line: rgba(242, 242, 238, 0.14);
+    --tile: #1b1b19;
+    --on-fg: #121211;          /* text colour when a button is filled with --fg */
+    --green: #37d67a;
+    --r-media: 18px;
+    --r-block: 28px;
+    --nav-h: 64px;
+    --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  [data-theme="light"] {
+    --bg: #f2f2f0;
+    --bg-rgb: 242, 242, 240;
+    --fg: #0d0d0d;
+    --muted: rgba(13, 13, 13, 0.6);
+    --line: rgba(13, 13, 13, 0.14);
+    --tile: #e7e7e2;
+    --on-fg: #f2f2f0;
+  }
+
+  /* ============ BASE ============ */
+  *, *::before, *::after { box-sizing: border-box; }
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-h) + 20px);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    line-height: 1.55;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; border-radius: 4px; }
+  ::selection { background: var(--fg); color: var(--bg); }
+
+  .wrap { width: min(1440px, 100% - 48px); margin-inline: auto; }
+  @media (max-width: 700px) { .wrap { width: min(1440px, 100% - 32px); } }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .skip {
+    position: absolute; left: 12px; top: -60px; z-index: 300;
+    background: var(--fg); color: var(--bg); padding: 10px 18px;
+    border-radius: 999px; text-decoration: none; font-weight: 700;
+    transition: top 0.2s ease;
+  }
+  .skip:focus { top: 12px; }
+
+  /* ============ TYPOGRAPHY ============ */
+  .display {
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    margin: 0;
+  }
+  .label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 18px;
+  }
+  h2.display { font-size: clamp(2.5rem, 6.5vw, 5.5rem); }
+
+  /* ============ BUTTONS ============ */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--fg);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  }
+  .pill:hover { border-color: var(--fg); }
+  .pill--solid { background: var(--fg); color: var(--on-fg); border-color: var(--fg); }
+  .pill--solid:hover { opacity: 0.88; }
+
+  /* ============ NAV ============ */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: rgba(var(--bg-rgb), 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+    padding-top: env(safe-area-inset-top);
+  }
+  .nav-inner {
+    height: var(--nav-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .logo {
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: -0.05em;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .nav-links {
+    display: flex;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .nav-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 14px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--muted);
+    border-radius: 999px;
+    transition: color 0.2s ease;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--fg); }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .theme-toggle {
+    width: 44px; height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+  }
+  .theme-toggle:hover { border-color: var(--fg); }
+  .theme-toggle svg { width: 18px; height: 18px; }
+  .theme-toggle .sun { display: none; }
+  [data-theme="light"] .theme-toggle .sun { display: block; }
+  [data-theme="light"] .theme-toggle .moon { display: none; }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding-block: clamp(48px, 8vw, 96px);
+  }
+  .hero h1 {
+    font-size: clamp(2.75rem, 10.5vw, 9rem);
+  }
+  .word { display: inline-block; white-space: nowrap; }
+  .l-wrap { display: inline-block; overflow: hidden; vertical-align: bottom; }
+  .l {
+    display: inline-block;
+    animation: letterUp 0.8s var(--ease) both;
+  }
+  @keyframes letterUp {
+    from { transform: translateY(105%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .hero-sub {
+    margin: 28px auto 0;
+    max-width: 46ch;
+    color: var(--muted);
+    font-size: clamp(1rem, 0.95rem + 0.4vw, 1.25rem);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 34px;
+    padding: 9px 18px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .badge .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(55, 214, 122, 0.55); }
+    70% { box-shadow: 0 0 0 10px rgba(55, 214, 122, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(55, 214, 122, 0); }
+  }
+
+  /* ============ MARQUEE ============ */
+  .marquee {
+    border-block: 1px solid var(--line);
+    overflow: hidden;
+    padding-block: clamp(14px, 2vw, 22px);
+    user-select: none;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    gap: 48px;
+    animation: marquee 32s linear infinite;
+  }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+  .marquee-track span {
+    font-weight: 800;
+    font-size: clamp(1.25rem, 3vw, 2.25rem);
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .marquee-track .sep { color: var(--muted); }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ============ SECTIONS ============ */
+  section { padding-block: clamp(64px, 10vw, 140px); }
+  section + section { border-top: 1px solid var(--line); }
+
+  /* About */
+  .about-grid {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.85fr) 1.15fr;
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+  .portrait {
+    aspect-ratio: 4 / 5;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--tile);
+  }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; }
+  .bio p { max-width: 58ch; margin: 0 0 1.1em; }
+  .bio p:last-of-type { margin-bottom: 0; }
+  .facts {
+    margin: clamp(28px, 4vw, 44px) 0 0;
+    padding: 0;
+  }
+  .facts .row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 16px;
+    padding-block: 16px;
+    border-top: 1px solid var(--line);
+  }
+  .facts dt { color: var(--muted); font-size: 0.9375rem; }
+  .facts dd { margin: 0; font-weight: 600; }
+  .facts dd a { text-underline-offset: 4px; display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* What I do / experience */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: clamp(32px, 5vw, 80px);
+    align-items: start;
+  }
+  .split-head { position: sticky; top: calc(var(--nav-h) + 32px); }
+  .work-item {
+    border-top: 1px solid var(--line);
+    padding-block: clamp(22px, 3vw, 32px);
+  }
+  .work-item:last-child { border-bottom: 1px solid var(--line); }
+  .work-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .work-item h3 { margin: 0; font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-weight: 800; letter-spacing: -0.03em; }
+  .work-tag { font-size: 0.8125rem; font-weight: 700; color: var(--muted); white-space: nowrap; }
+  .work-role { margin: 4px 0 8px; font-weight: 600; }
+  .work-item p { margin: 0; color: var(--muted); max-width: 52ch; }
+
+  /* ============ FILTERS + GRIDS ============ */
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: clamp(24px, 3vw, 36px) 0 clamp(24px, 3vw, 40px);
+  }
+  .filter {
+    min-height: 44px;
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: transparent;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+  .filter:hover { border-color: var(--fg); }
+  .filter[aria-pressed="true"] { background: var(--fg); color: var(--on-fg); border-color: var(--fg); }
+
+  .grid-reels {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .grid-films {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(16px, 2vw, 24px);
+  }
+  @media (max-width: 1024px) { .grid-reels { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px) {
+    .grid-reels { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .grid-films { grid-template-columns: 1fr; }
+  }
+
+  .tile { min-width: 0; }
+  .grid-empty { margin: 8px 0 0; color: var(--muted); font-weight: 600; }
+  .tile[hidden] { display: none; }
+  .tile-btn {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-media);
+    overflow: hidden;
+    background: var(--tile);
+    cursor: pointer;
+    transition: transform 0.35s var(--ease), border-color 0.25s ease;
+  }
+  .tile-btn:hover { transform: translateY(-4px); border-color: rgba(var(--bg-rgb), 0); }
+  .tile--reel .tile-btn { aspect-ratio: 9 / 16; }
+  .tile--film .tile-btn { aspect-ratio: 16 / 9; border-radius: 20px; }
+  .tile-btn img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  /* monochrome placeholder when no thumbnail is set */
+  .ph {
+    position: absolute; inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--tile);
+    color: var(--muted);
+  }
+  .ph b {
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    opacity: 0.5;
+  }
+  .tile--film .ph b { font-size: clamp(2rem, 4vw, 3rem); }
+  .play {
+    position: absolute;
+    top: 50%; left: 50%;
+    translate: -50% -50%;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    border: 1px solid rgba(242, 242, 238, 0.75);
+    background: rgba(18, 18, 17, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #f2f2ee;
+    opacity: 0;
+    transform: scale(0.85);
+    transition: opacity 0.3s ease, transform 0.3s var(--ease);
+  }
+  .play svg { width: 20px; height: 20px; margin-left: 3px; }
+  .tile-btn:hover .play,
+  .tile-btn:focus-visible .play { opacity: 1; transform: scale(1); }
+  .bar {
+    position: absolute;
+    left: 14px; right: 14px; bottom: 14px;
+    height: 3px;
+    border-radius: 3px;
+    background: rgba(242, 242, 238, 0.28);
+    overflow: hidden;
+  }
+  .bar i {
+    display: block;
+    height: 100%;
+    background: #f2f2ee;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s var(--ease);
+  }
+  .tile-btn:hover .bar i,
+  .tile-btn:focus-visible .bar i { transform: scaleX(1); }
+  .tile-meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 12px;
+  }
+  .tile-meta h3 { margin: 0; font-size: 0.9375rem; font-weight: 700; letter-spacing: -0.01em; }
+  .tile-meta span { color: var(--muted); font-size: 0.8125rem; white-space: nowrap; }
+  @media (hover: none) {
+    .play { opacity: 1; transform: scale(1); }
+    .bar i { transform: scaleX(0.35); }
+  }
+
+  /* ============ TOOLS ============ */
+  .tools { display: flex; flex-wrap: wrap; gap: 10px; }
+  .tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 10px 20px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .tool-icon { width: 17px; height: 17px; flex: none; }
+
+  /* ============ CONTACT ============ */
+  .contact-block {
+    background: var(--tile);
+    border: 1px solid var(--line);
+    border-radius: var(--r-block);
+    padding: clamp(36px, 7vw, 96px) clamp(24px, 5vw, 72px);
+    text-align: center;
+  }
+  .contact-block h2 { font-size: clamp(2.5rem, 8.5vw, 7rem); }
+  .contact-mail {
+    display: inline-block;
+    margin-top: clamp(24px, 4vw, 40px);
+    font-size: clamp(1.15rem, 3vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    text-underline-offset: 6px;
+  }
+  .contact-socials {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: clamp(24px, 4vw, 36px);
+  }
+
+  /* ============ FOOTER ============ */
+  footer {
+    border-top: 1px solid var(--line);
+    padding-block: 28px;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+  .footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  .footer-inner a { text-underline-offset: 4px; display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* ============ VIDEO POPUP ============ */
+  .popup { position: fixed; inset: 0; z-index: 100; display: none; }
+  .popup.open { display: grid; place-items: center; padding: 16px; padding-top: calc(16px + env(safe-area-inset-top)); padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  .popup-bd {
+    position: absolute; inset: 0;
+    background: rgba(8, 8, 8, 0.88);
+    border: 0;
+    cursor: pointer;
+  }
+  .popup-card { position: relative; width: min(1040px, 100%); }
+  .popup-ratio {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #000;
+  }
+  .popup-ratio iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .popup-ratio video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
+  .popup-title {
+    margin: 14px 0 0;
+    color: #f2f2ee;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: 1rem;
+  }
+  .popup-close {
+    position: absolute;
+    top: -56px; right: 0;
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    border: 1px solid rgba(242, 242, 238, 0.4);
+    background: transparent;
+    color: #f2f2ee;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .popup-close:hover { background: rgba(242, 242, 238, 0.14); }
+  .popup-close svg { width: 18px; height: 18px; }
+  .popup-note {
+    display: grid;
+    place-items: center;
+    gap: 18px;
+    text-align: center;
+    padding: clamp(24px, 5vw, 48px);
+    color: #f2f2ee;
+    background: #101010;
+    height: 100%;
+  }
+  .popup-note p { margin: 0; max-width: 44ch; color: rgba(242, 242, 238, 0.75); }
+  .popup-note .pill { border-color: rgba(242, 242, 238, 0.5); color: #f2f2ee; }
+  @media (max-width: 640px) { .popup-close { top: -52px; } }
+
+  /* ============ SMALL SCREENS: stack two-column layouts ============ */
+  @media (max-width: 860px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .split { grid-template-columns: 1fr; }
+    .split-head { position: static; }
+  }
+
+  /* ============ REVEAL ============ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.7s ease, transform 0.7s var(--ease);
+    transition-delay: calc(var(--i, 0) * 70ms);
+  }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ============ CUSTOM CURSOR (desktop only) ============ */
+  .cursor {
+    position: fixed;
+    top: 0; left: 0;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #f2f2ee;
+    mix-blend-mode: difference;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: width 0.25s var(--ease), height 0.25s var(--ease), opacity 0.2s ease;
+  }
+  .cursor.on { opacity: 1; }
+  .cursor.big { width: 64px; height: 64px; opacity: 0.85; }
+  html.custom-cursor, html.custom-cursor a, html.custom-cursor button { cursor: none; }
+  .cursor { display: none; }
+  html.custom-cursor .cursor { display: block; }
+
+  /* ============ REDUCED MOTION ============ */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    .reveal { opacity: 1; transform: none; }
+    .marquee-track { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+<div class="cursor" aria-hidden="true"></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="logo" href="#top" aria-label="Saarkesh — back to top">S.</a>
+    <nav aria-label="Primary">
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#reels">Reels</a></li>
+        <li><a href="#films">Films</a></li>
+      </ul>
+    </nav>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+      <a class="pill pill--solid" href="#contact">Hire me</a>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top">
+    <div class="wrap">
+      <p class="badge"><span class="dot" aria-hidden="true"></span> Available for freelance work</p>
+      <h1 class="display" id="heroTitle">Video Editor Portfolio.</h1>
+      <p class="hero-sub">Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.</p>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track" id="marqueeTrack">
+      <span>Reels</span><span class="sep">/</span>
+      <span>Beat-synced Edits</span><span class="sep">/</span>
+      <span>Sound Effects</span><span class="sep">/</span>
+      <span>Wedding Films</span><span class="sep">/</span>
+      <span>YouTube Edits</span><span class="sep">/</span>
+      <span>Storytelling</span><span class="sep">/</span>
+    </div>
+  </div>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="wrap">
+      <p class="label reveal">About</p>
+      <div class="about-grid">
+        <div class="portrait reveal">
+          <!-- Replace the src with your own photo (keep the alt text accurate) -->
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='1000'%3E%3Crect width='800' height='1000' fill='%231c1c1a'/%3E%3Ctext x='400' y='560' font-family='Inter Tight, Arial, sans-serif' font-size='340' font-weight='900' fill='%23434340' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E"
+               alt="Placeholder portrait of Saarkesh, video editor in Colombo — replace with a real photo" width="800" height="1000">
+        </div>
+        <div class="bio reveal" style="--i:1">
+          <h2 class="display" style="font-size: clamp(2rem, 4.5vw, 3.5rem); margin-bottom: 24px;">Hey, I'm Saarkesh.</h2>
+          <p>I'm a video editor based in Colombo. Most of my work is reels and social media edits — cut tight to the audio, layered with sound effects, and finished with motion graphics that I'm honestly still leveling up on.</p>
+          <p>I also edit wedding films and wedding reels, YouTube videos, and storytelling-style informative videos. I'm still learning, still improving, and I care a lot about pacing: making sure every second earns its place.</p>
+          <p>If your footage needs rhythm and structure, let's talk.</p>
+          <dl class="facts">
+            <div class="row"><dt>Location</dt><dd>Colombo, Sri Lanka</dd></div>
+            <div class="row"><dt>Focus</dt><dd>Reels, social media edits, motion graphics</dd></div>
+            <div class="row"><dt>Email</dt><dd><a href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a></dd></div>
+            <div class="row"><dt>Instagram</dt><dd><a href="https://instagram.com/4o4_erro" target="_blank" rel="noopener noreferrer">@4o4_erro</a></dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WHAT I DO / EXPERIENCE ============ -->
+  <section id="experience">
+    <div class="wrap split">
+      <div class="split-head reveal">
+        <p class="label">Experience</p>
+        <h2 class="display">What I do.</h2>
+      </div>
+      <div>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Reels &amp; Social Edits</h3><span class="work-tag">Main work</span></div>
+          <p class="work-role">Short-form editor</p>
+          <p>Beat-synced reels cut to the audio, layered with sound effects and intermediate motion graphics for Instagram and TikTok.</p>
+        </article>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Wedding Films</h3><span class="work-tag">Films</span></div>
+          <p class="work-role">Wedding film &amp; reel editor</p>
+          <p>Full wedding film edits and highlight reels built around the emotion and pacing of the day, not just the best clips.</p>
+        </article>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>YouTube Edits</h3><span class="work-tag">Long form</span></div>
+          <p class="work-role">Long-form editor</p>
+          <p>Clean, watchable YouTube edits — cuts, b-roll, captions and pacing that keep viewers to the end.</p>
+        </article>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Storytelling Videos</h3><span class="work-tag">Informative</span></div>
+          <p class="work-role">Story-style editor</p>
+          <p>Informative, story-driven videos where structure and narration carry the piece as much as the visuals.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REELS ============ -->
+  <section id="reels">
+    <div class="wrap">
+      <p class="label reveal">Selected work</p>
+      <h2 class="display reveal">Reels &amp; social.</h2>
+      <div class="filters reveal" role="group" aria-label="Filter reels">
+        <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter" type="button" data-filter="social" aria-pressed="false">Social</button>
+        <button class="filter" type="button" data-filter="wedding" aria-pressed="false">Wedding</button>
+        <button class="filter" type="button" data-filter="motion" aria-pressed="false">Motion</button>
+      </div>
+      <div class="grid-reels" id="reelsGrid"></div>
+      <p class="grid-empty" id="gridEmpty" hidden>Nothing in this category yet — try <b>All</b>, or check back soon.</p>
+    </div>
+  </section>
+
+  <!-- ============ LONG FORM ============ -->
+  <section id="films">
+    <div class="wrap">
+      <p class="label reveal">Long form</p>
+      <h2 class="display reveal">Films &amp; stories.</h2>
+      <div class="grid-films" id="filmsGrid" style="margin-top: clamp(24px, 3vw, 40px);"></div>
+    </div>
+  </section>
+
+  <!-- ============ TOOLS ============ -->
+  <section id="tools">
+    <div class="wrap">
+      <p class="label reveal">Toolkit</p>
+      <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);">Tools I edit with.</h2>
+      <!-- Confirm / edit this list to match what you actually use -->
+      <div class="tools reveal">
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.15 8.42a2.93 2.93 0 00-1.18-.2 13.9 13.9 0 00-1.09.02v3.36l.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03a1.45 1.45 0 00-.93-1.46zM19.75.3H4.25A4.25 4.25 0 000 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.09 11.65c-.4.56-.96.98-1.61 1.22-.68.25-1.43.34-2.25.34l-.5-.01-.43-.01v3.21a.12.12 0 01-.11.14H5.82c-.08 0-.12-.04-.12-.13V6.42c0-.07.03-.11.1-.11l.56-.01.76-.02.87-.02.91-.01c.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.15.42.23.85.23 1.3 0 .86-.2 1.57-.6 2.13zm6.82-3.15v1.95c0 .08-.05.11-.16.11a4.35 4.35 0 00-1.92.37c-.19.09-.37.21-.51.37v5.1c0 .1-.04.14-.13.14h-1.97a.14.14 0 01-.16-.12v-5.58l-.01-.75-.02-.78c0-.23-.02-.45-.04-.68a.1.1 0 01.07-.11h1.78c.1 0 .18.07.2.16a3.03 3.03 0 01.13.92c.3-.35.67-.64 1.08-.86a3.1 3.1 0 011.52-.39c.07-.01.13.04.14.11v.04z"/></svg>Premiere Pro</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z"/></svg>After Effects</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.621 0 5.977.004c-1.37 0-2.756.345-3.762 1.11a4.925 4.925 0 0 0-1.61 2.003C.233 3.93 0 5.02 0 5.951l.012 12.2c.002 1.604.479 3.057 1.461 4.112.984 1.056 2.462 1.683 4.331 1.691L16.856 24c1.26.005 3.095-.036 4.303-.714 1.075-.605 2.025-1.556 2.497-2.984.278-.84.345-2.084.344-3.147l-.021-11.13c-.002-.888-.15-2.023-.547-2.934-.425-.976-1.181-1.815-2.322-2.425C20.353.26 19.123 0 17.622 0zm0 .93c1.378 0 2.538.295 3.04.565.977.523 1.544 1.166 1.889 1.96.315.721.47 1.793.473 2.572l.018 11.13c.002 1.013-.097 2.257-.298 2.86-.396 1.202-1.146 1.946-2.063 2.462-.814.457-2.612.593-3.82.588l-11.05-.044c-1.657-.007-2.832-.534-3.626-1.386-.792-.851-1.212-2.06-1.212-3.485L.999 5.95c0-.829.196-1.827.474-2.437.345-.757.75-1.207 1.365-1.674C3.585 1.27 4.868.97 6.08.97zm-5.66 3.423c-1.976.089-3.204 1.658-3.214 3.29.019 1.443 1.635 3.481 2.884 4.53.12.099.154.109.33.18.062.025.198-.047.327-.135.36-.245.993-.947 1.648-1.738a7.67 7.67 0 0 0 1.031-1.683c.409-.89.261-1.599.235-1.888a3.983 3.983 0 0 0-.99-1.692 3.36 3.36 0 0 0-2.251-.864zm4.172 7.922a10.185 10.185 0 0 0-3.244.61c-.15.058-.26.1-.374.17-.057.036-.11.135-.105.292.017.433.29 1.278.624 2.27.384 1.135 1.066 2.27 1.844 2.74a3.23 3.23 0 0 0 2.53.342c.832-.243 1.595-.868 1.962-1.546.986-1.818.19-3.548-1.121-4.417-.447-.296-1.133-.445-1.89-.46-.074 0-.15-.002-.226-.001zm-8.432.038a6.201 6.201 0 0 0-.752.047c-.596.078-.932.273-1.29.51a3.177 3.177 0 0 0-1.365 1.979c-.075.552-.086 1.053.033 1.507.433 1.389 1.326 2.222 2.847 2.452.636.028 1.37-.063 1.99-.45 1.269-.782 2.08-3.17 2.412-4.742.053-.176.035-.357-.013-.42-.005-.067-.044-.113-.19-.183-.398-.192-1.32-.417-2.375-.6a7.68 7.68 0 0 0-1.297-.1z"/></svg>DaVinci Resolve</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.85 8.42c-.37-.15-.77-.21-1.18-.2-.26 0-.49 0-.68.01-.2-.01-.34 0-.41.01v3.36c.14.01.27.02.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03.01-.31-.07-.62-.23-.89-.17-.26-.41-.46-.7-.57zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.899c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.391 11.65c-.399.56-.959.98-1.609 1.22-.68.25-1.43.34-2.25.34-.24 0-.4 0-.5-.01s-.24-.01-.43-.01v3.209c.01.07-.04.131-.11.141H5.52c-.08 0-.12-.041-.12-.131V6.42c0-.07.03-.11.1-.11.17 0 .33 0 .56-.01.24-.01.49-.01.76-.02s.56-.01.87-.02c.31-.01.61-.01.91-.01.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.149.42.229.85.229 1.3.001.86-.199 1.57-.6 2.13zm7.091 3.89c-.28.4-.671.709-1.12.891-.49.209-1.09.318-1.811.318-.459 0-.91-.039-1.359-.129-.35-.061-.7-.17-1.02-.32-.07-.039-.121-.109-.111-.189v-1.74c0-.029.011-.07.041-.09.029-.02.06-.01.09.01.39.23.8.391 1.24.49.379.1.779.15 1.18.15.38 0 .65-.051.83-.141.16-.07.27-.24.27-.42 0-.141-.08-.27-.24-.4-.16-.129-.489-.279-.979-.471-.51-.18-.979-.42-1.42-.719-.31-.221-.569-.51-.761-.85-.159-.32-.239-.67-.229-1.021 0-.43.12-.84.341-1.21.25-.4.619-.72 1.049-.92.469-.239 1.059-.349 1.769-.349.41 0 .83.03 1.24.09.3.04.59.12.86.23.039.01.08.05.1.09.01.04.02.08.02.12v1.63c0 .04-.02.08-.05.1-.09.02-.14.02-.18 0-.3-.16-.62-.27-.96-.34-.37-.08-.74-.13-1.12-.13-.2-.01-.41.02-.601.07-.129.03-.24.1-.31.2-.05.08-.08.18-.08.27s.04.18.101.26c.09.11.209.2.34.27.229.12.47.23.709.33.541.18 1.061.43 1.541.73.33.209.6.49.789.83.16.318.24.67.23 1.029.011.471-.129.94-.389 1.331z"/></svg>Photoshop</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12"/><path d="M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="M14.8 14.8 20 20"/></svg>CapCut</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zM12.5 16.8h-2.09c-.07.011-.14-.04-.16-.11l-.82-2.39H5.71l-.76 2.36c-.02.09-.1.15-.19.14H2.88c-.11 0-.14-.06-.11-.18l3.22-9.24c.03-.1.06-.21.1-.33.05-.21.08-.42.08-.64-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.63 10.261c.03.109 0 .159-.1.159zm7.75.011h-1.721c-.079.01-.159-.041-.189-.11-.02-.08-.04-.171-.061-.25-.02-.07-.02-.14-.02-.21-.32.289-.71.5-1.13.619-.36.101-.739.15-1.11.15-.369 0-.74-.05-1.09-.17-.32-.109-.619-.3-.85-.55-.26-.28-.45-.61-.561-.97-.14-.461-.209-.94-.199-1.42V8.94c-.01-.06.029-.12.1-.13h1.939c.061-.01.121.03.131.1v4.731c0 .439.1.789.289 1.039.191.25.58.381 1.031.381.229 0 .459-.041.68-.121.23-.08.439-.189.63-.33V8.92c0-.07.05-.11.14-.11h1.91c.051-.01.109.03.109.08v6.16c0 .271 0 .511.011.72.01.211.021.391.03.551.02.16.029.25.039.359.012.09-.028.131-.108.131zM8.33 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86z"/></svg>Audition</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact-block reveal">
+        <h2 class="display">Let's cut something great.</h2>
+        <a class="contact-mail" href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a>
+        <div class="contact-socials">
+          <a class="pill" href="https://instagram.com/4o4_erro" target="_blank" rel="noopener noreferrer">Instagram @4o4_erro</a>
+          <a class="pill pill--solid" href="mailto:cheerysaark@gmail.com">Email me</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="wrap footer-inner">
+    <span>© <span id="year">2026</span> Saarkesh — Video Editor, Colombo</span>
+    <span>Available for freelance work</span>
+  </div>
+</footer>
+
+<!-- ============ VIDEO POPUP ============ -->
+<div class="popup" id="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" hidden>
+  <button class="popup-bd" id="popupBackdrop" type="button" tabindex="-1" aria-label="Close video"></button>
+  <div class="popup-card">
+    <button class="popup-close" id="popupClose" type="button" aria-label="Close video">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="popup-ratio" id="popupRatio"></div>
+    <p class="popup-title" id="popupTitle"></p>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* =====================================================================
+     EDIT ME — every video on the page lives in this one array.
+     kind : 'reel' = 9:16 tile in "Reels & social", 'film' = 16:9 in "Films & stories"
+     cat  : 'social' | 'wedding' | 'motion'  (used by the filter buttons)
+     url  : a local file ("portfolio-videos/reel.mp4") or a YouTube / Vimeo / Instagram link ("" shows a hint)
+     thumb: image path, e.g. "portfolio-videos/posters/reel.jpg" ("" shows a placeholder tile)
+     ===================================================================== */
+  var VIDEOS = [
+    /* ---- Reels (vertical) ---- */
+    { kind: 'reel', cat: 'social', title: 'Eko lens portrait reel', duration: '0:36', url: 'portfolio-videos/eko-portrait-reel.mp4', thumb: 'portfolio-videos/posters/eko-portrait-reel.jpg' },
+    { kind: 'reel', cat: 'social', title: 'STM video — final cut', duration: '1:05', url: 'portfolio-videos/stm-final.mp4', thumb: 'portfolio-videos/posters/stm-final.jpg' },
+    { kind: 'reel', cat: 'motion', title: 'AI search demo', duration: '0:19', url: 'portfolio-videos/ai-search-demo.mp4', thumb: 'portfolio-videos/posters/ai-search-demo.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Final Out', duration: '1:20', url: 'portfolio-videos/final-out.mp4', thumb: 'portfolio-videos/posters/final-out.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 02', duration: '1:01', url: 'portfolio-videos/reel-take-02.mp4', thumb: 'portfolio-videos/posters/reel-take-02.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 03', duration: '0:38', url: 'portfolio-videos/reel-take-03.mp4', thumb: 'portfolio-videos/posters/reel-take-03.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 04', duration: '1:19', url: 'portfolio-videos/reel-take-04.mp4', thumb: 'portfolio-videos/posters/reel-take-04.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 05', duration: '0:51', url: 'portfolio-videos/reel-take-05.mp4', thumb: 'portfolio-videos/posters/reel-take-05.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Memories — dark moments edit', duration: '0:40', url: 'portfolio-videos/memories-reel.mp4', thumb: 'portfolio-videos/posters/memories-reel.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Creatine Q&A — Dr Dumindu', duration: '0:41', url: 'portfolio-videos/creatine-qa.mp4', thumb: 'portfolio-videos/posters/creatine-qa.jpg' },
+
+    /* ---- Long form (landscape) ---- */
+    { kind: 'film', cat: 'social', title: 'Interact Club — officials board 2023/24', duration: '4:55', url: 'portfolio-videos/interact-board-2023-24.mp4', thumb: 'portfolio-videos/posters/interact-board-2023-24.jpg' }
+  ];
+
+  /* ---------- helpers ---------- */
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  /* ---------- theme toggle ---------- */
+  var root = document.documentElement;
+  var toggle = $('#themeToggle');
+  function syncToggleLabel() {
+    toggle.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  }
+  syncToggleLabel();
+  toggle.addEventListener('click', function () {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('theme', root.dataset.theme); } catch (e) {}
+    syncToggleLabel();
+  });
+
+  /* ---------- hero: letter-by-letter ---------- */
+  var heroTitle = $('#heroTitle');
+  if (heroTitle) {
+    var text = heroTitle.textContent.trim();
+    heroTitle.setAttribute('aria-label', text);
+    heroTitle.textContent = '';
+    var idx = 0;
+    var words = text.split(' ');
+    words.forEach(function (word, wi) {
+      var wSpan = document.createElement('span');
+      wSpan.className = 'word';
+      wSpan.setAttribute('aria-hidden', 'true');
+      word.split('').forEach(function (ch) {
+        var wrap = document.createElement('span');
+        wrap.className = 'l-wrap';
+        var letter = document.createElement('span');
+        letter.className = 'l';
+        letter.style.animationDelay = (0.08 + idx * 0.03) + 's';
+        letter.textContent = ch;
+        wrap.appendChild(letter);
+        wSpan.appendChild(wrap);
+        idx++;
+      });
+      heroTitle.appendChild(wSpan);
+      if (wi < words.length - 1) {
+        var space = document.createElement('span');
+        space.setAttribute('aria-hidden', 'true');
+        space.textContent = '\u00A0';
+        heroTitle.appendChild(space);
+      }
+    });
+  }
+
+  /* ---------- marquee: duplicate for a seamless loop ---------- */
+  var track = $('#marqueeTrack');
+  if (track) { track.innerHTML += track.innerHTML; }
+
+  /* ---------- build tiles ---------- */
+  var PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.14v13.72L19 12z"/></svg>';
+
+  function buildTile(v, i) {
+    var el = document.createElement('article');
+    el.className = 'tile reveal ' + (v.kind === 'reel' ? 'tile--reel' : 'tile--film');
+    el.dataset.cat = v.cat;
+    el.style.setProperty('--i', i % 8);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tile-btn';
+    btn.dataset.index = i;
+    btn.setAttribute('data-cursor', 'play');
+
+    var media = v.thumb
+      ? '<img src="' + v.thumb + '" alt="' + (v.title + ' — video thumbnail').replace(/"/g, '&quot;') + '" loading="lazy">'
+      : '<span class="ph" aria-hidden="true"><b>' + v.title.charAt(0) + '</b></span>';
+
+    btn.innerHTML = media +
+      '<span class="play" aria-hidden="true">' + PLAY_SVG + '</span>' +
+      '<span class="bar" aria-hidden="true"><i></i></span>' +
+      '<span class="sr-only">Play ' + v.title + ' (' + v.duration + ')</span>';
+
+    var meta = document.createElement('div');
+    meta.className = 'tile-meta';
+    meta.innerHTML = '<h3>' + v.title + '</h3><span>' + v.duration + '</span>';
+
+    el.appendChild(btn);
+    el.appendChild(meta);
+    return el;
+  }
+
+  var reelsGrid = $('#reelsGrid');
+  var filmsGrid = $('#filmsGrid');
+  VIDEOS.forEach(function (v, i) {
+    if (v.kind === 'reel') { reelsGrid.appendChild(buildTile(v, i)); }
+    else { filmsGrid.appendChild(buildTile(v, i)); }
+  });
+
+  /* ---------- filters ---------- */
+  $$('.filter').forEach(function (f) {
+    f.addEventListener('click', function () {
+      $$('.filter').forEach(function (o) { o.setAttribute('aria-pressed', String(o === f)); });
+      var cat = f.dataset.filter;
+      var shown = 0;
+      $$('.tile--reel', reelsGrid).forEach(function (tile) {
+        tile.hidden = !(cat === 'all' || tile.dataset.cat === cat);
+        if (!tile.hidden) { shown++; }
+      });
+      $('#gridEmpty').hidden = shown > 0;
+    });
+  });
+
+  /* ---------- video popup ---------- */
+  var popup = $('#popup');
+  var popupRatio = $('#popupRatio');
+  var popupTitle = $('#popupTitle');
+  var popupClose = $('#popupClose');
+  var lastFocus = null;
+
+  function parseLink(url) {
+    if (!url) { return null; }
+    var yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{6,})/);
+    if (yt) { return { type: 'youtube', src: 'https://www.youtube-nocookie.com/embed/' + yt[1] + '?autoplay=1&rel=0' }; }
+    var vm = url.match(/vimeo\.com\/(\d+)/);
+    if (vm) { return { type: 'vimeo', src: 'https://player.vimeo.com/video/' + vm[1] + '?autoplay=1' }; }
+    var ig = url.match(/instagram\.com\/(?:p|reel|reels|tv)\/([\w-]+)/);
+    if (ig) { return { type: 'instagram', src: url }; }
+    return null;
+  }
+
+  function openPopup(i) {
+    var v = VIDEOS[i];
+    if (!v) { return; }
+    lastFocus = document.activeElement;
+    popupTitle.textContent = v.title;
+    var embed = parseLink(v.url);
+    var isLocal = /\.(mp4|webm|mov|m4v|ogg|ogv)(\?|#|$)/i.test(v.url || '');
+
+    if (v.url && isLocal) {
+      /* local file: play it in a <video> that fits itself to the video's shape */
+      popupRatio.innerHTML = '<video id="popupVideo" controls autoplay playsinline preload="metadata" src="' + v.url + '"></video>';
+      var vid = document.getElementById('popupVideo');
+      vid.addEventListener('loadedmetadata', function () {
+        if (!vid.videoWidth || !vid.videoHeight) { return; }
+        var card = popup.querySelector('.popup-card');
+        var maxH = Math.round(window.innerHeight * 0.74);
+        var maxW = Math.min(1040, Math.round(maxH * vid.videoWidth / vid.videoHeight));
+        popupRatio.style.aspectRatio = vid.videoWidth + ' / ' + vid.videoHeight;
+        card.style.width = maxW + 'px';
+      });
+      var tryPlay = vid.play();
+      if (tryPlay && tryPlay.catch) { tryPlay.catch(function () {}); }
+    } else if (embed && embed.type !== 'instagram') {
+      popupRatio.innerHTML = '<iframe src="' + embed.src + '" title="' + v.title.replace(/"/g, '&quot;') +
+        '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
+    } else {
+      var link = (embed && embed.src) || '#';
+      var hasLink = !!embed;
+      popupRatio.innerHTML =
+        '<div class="popup-note">' +
+        (hasLink
+          ? '<p>Instagram posts can\'t be embedded here, but you can watch this one on Instagram.</p>' +
+            '<a class="pill" href="' + link + '" target="_blank" rel="noopener noreferrer">Watch on Instagram</a>'
+          : '<p>No video link yet. Open <b>saarkesh-portfolio.html</b> in a text editor, find the <b>VIDEOS</b> array near the bottom, and paste a YouTube / Vimeo / Instagram URL into this entry.</p>') +
+        '</div>';
+    }
+
+    popup.hidden = false;
+    popup.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    popupClose.focus();
+  }
+
+  function closePopup() {
+    popup.classList.remove('open');
+    popup.hidden = true;
+    popupRatio.innerHTML = ''; /* stops playback */
+    popupRatio.style.aspectRatio = '';
+    popup.querySelector('.popup-card').style.width = '';
+    document.body.style.overflow = '';
+    if (lastFocus && lastFocus.focus) { lastFocus.focus(); }
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest ? e.target.closest('.tile-btn') : null;
+    if (btn) { openPopup(Number(btn.dataset.index)); }
+  });
+  popupClose.addEventListener('click', closePopup);
+  $('#popupBackdrop').addEventListener('click', closePopup);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && popup.classList.contains('open')) { closePopup(); }
+    /* keep focus inside the dialog while it is open */
+    if (e.key === 'Tab' && popup.classList.contains('open')) {
+      e.preventDefault();
+      popupClose.focus();
+    }
+  });
+
+  /* ---------- scroll reveal ---------- */
+  var revealEls = $$('.reveal');
+  if (reduced || !('IntersectionObserver' in window)) {
+    revealEls.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+    revealEls.forEach(function (el) { io.observe(el); });
+  }
+
+  /* ---------- active nav link ---------- */
+  if ('IntersectionObserver' in window) {
+    var links = {};
+    $$('.nav-links a').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var navIo = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var link = links[entry.target.id];
+        if (!link) { return; }
+        if (entry.isIntersecting) {
+          Object.keys(links).forEach(function (k) { links[k].classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    Object.keys(links).forEach(function (id) {
+      var sec = document.getElementById(id);
+      if (sec) { navIo.observe(sec); }
+    });
+  }
+
+  /* ---------- custom cursor (desktop only) ---------- */
+  if (finePointer && !reduced) {
+    root.classList.add('custom-cursor');
+    var cursor = $('.cursor');
+    var cx = -100, cy = -100, tx = -100, ty = -100, raf = null;
+
+    function loop() {
+      cx += (tx - cx) * 0.22;
+      cy += (ty - cy) * 0.22;
+      cursor.style.transform = 'translate(' + cx + 'px, ' + cy + 'px) translate(-50%, -50%)';
+      raf = requestAnimationFrame(loop);
+    }
+    document.addEventListener('mousemove', function (e) {
+      tx = e.clientX; ty = e.clientY;
+      if (!cursor.classList.contains('on')) { cursor.classList.add('on'); cx = tx; cy = ty; }
+      if (raf === null) { raf = requestAnimationFrame(loop); }
+    });
+    document.addEventListener('mouseleave', function () { cursor.classList.remove('on'); });
+    document.addEventListener('mouseover', function (e) {
+      var hit = e.target.closest ? e.target.closest('[data-cursor="play"], a, button') : null;
+      cursor.classList.toggle('big', !!(hit && hit.dataset && hit.dataset.cursor === 'play'));
+    });
+  }
+
+  /* ---------- misc ---------- */
+  $('#year').textContent = String(new Date().getFullYear());
+})();
+</script>
+</body>
+</html>
