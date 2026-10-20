@@ -515,7 +515,7 @@
     border: 0;
     cursor: pointer;
   }
-  .popup-card { position: relative; width: min(1040px, 100%); }
+  .popup-card { position: relative; width: min(1040px, 100%); max-width: 100%; }
   .popup-ratio {
     position: relative;
     aspect-ratio: 16 / 9;
@@ -968,6 +968,7 @@
         var card = popup.querySelector('.popup-card');
         var maxH = Math.round(window.innerHeight * 0.74);
         var maxW = Math.min(1040, Math.round(maxH * vid.videoWidth / vid.videoHeight));
+        maxW = Math.min(maxW, window.innerWidth - 32); /* never wider than the screen (mobile) */
         popupRatio.style.aspectRatio = vid.videoWidth + ' / ' + vid.videoHeight;
         card.style.width = maxW + 'px';
       });
