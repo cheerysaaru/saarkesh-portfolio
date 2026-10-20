@@ -1,3 +1,8 @@
+# Videos live in the GitHub release "videos-v1" (GitHub Pages cannot serve Git LFS files).
+# Keep them on disk for re-uploads, but out of the git tree.
+portfolio-videos/*.mp4
+.git.zip
+
 Thumbs.db
 desktop.ini
 .DS_Store

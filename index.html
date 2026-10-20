@@ -802,24 +802,25 @@
      EDIT ME — every video on the page lives in this one array.
      kind : 'reel' = 9:16 tile in "Reels & social", 'film' = 16:9 in "Films & stories"
      cat  : 'social' | 'wedding' | 'motion'  (used by the filter buttons)
-     url  : a local file ("portfolio-videos/reel.mp4") or a YouTube / Vimeo / Instagram link ("" shows a hint)
+     url  : a hosted file URL (GitHub release, e.g. https://github.com/.../releases/download/videos-v1/reel.mp4),
+            a local file ("portfolio-videos/reel.mp4") or a YouTube / Vimeo / Instagram link ("" shows a hint)
      thumb: image path, e.g. "portfolio-videos/posters/reel.jpg" ("" shows a placeholder tile)
      ===================================================================== */
   var VIDEOS = [
     /* ---- Reels (vertical) ---- */
-    { kind: 'reel', cat: 'social', title: 'Eko lens portrait reel', duration: '0:36', url: 'portfolio-videos/eko-portrait-reel.mp4', thumb: 'portfolio-videos/posters/eko-portrait-reel.jpg' },
-    { kind: 'reel', cat: 'social', title: 'STM video — final cut', duration: '1:05', url: 'portfolio-videos/stm-final.mp4', thumb: 'portfolio-videos/posters/stm-final.jpg' },
-    { kind: 'reel', cat: 'motion', title: 'AI search demo', duration: '0:19', url: 'portfolio-videos/ai-search-demo.mp4', thumb: 'portfolio-videos/posters/ai-search-demo.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Final Out', duration: '1:20', url: 'portfolio-videos/final-out.mp4', thumb: 'portfolio-videos/posters/final-out.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Reel take 02', duration: '1:01', url: 'portfolio-videos/reel-take-02.mp4', thumb: 'portfolio-videos/posters/reel-take-02.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Reel take 03', duration: '0:38', url: 'portfolio-videos/reel-take-03.mp4', thumb: 'portfolio-videos/posters/reel-take-03.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Reel take 04', duration: '1:19', url: 'portfolio-videos/reel-take-04.mp4', thumb: 'portfolio-videos/posters/reel-take-04.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Reel take 05', duration: '0:51', url: 'portfolio-videos/reel-take-05.mp4', thumb: 'portfolio-videos/posters/reel-take-05.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Memories — dark moments edit', duration: '0:40', url: 'portfolio-videos/memories-reel.mp4', thumb: 'portfolio-videos/posters/memories-reel.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Creatine Q&A — Dr Dumindu', duration: '0:41', url: 'portfolio-videos/creatine-qa.mp4', thumb: 'portfolio-videos/posters/creatine-qa.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Eko lens portrait reel', duration: '0:36', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/eko-portrait-reel.mp4', thumb: 'portfolio-videos/posters/eko-portrait-reel.jpg' },
+    { kind: 'reel', cat: 'social', title: 'STM video — final cut', duration: '1:05', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/stm-final.mp4', thumb: 'portfolio-videos/posters/stm-final.jpg' },
+    { kind: 'reel', cat: 'motion', title: 'AI search demo', duration: '0:19', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/ai-search-demo.mp4', thumb: 'portfolio-videos/posters/ai-search-demo.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Final Out', duration: '1:20', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/final-out.mp4', thumb: 'portfolio-videos/posters/final-out.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 02', duration: '1:01', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/reel-take-02.mp4', thumb: 'portfolio-videos/posters/reel-take-02.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 03', duration: '0:38', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/reel-take-03.mp4', thumb: 'portfolio-videos/posters/reel-take-03.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 04', duration: '1:19', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/reel-take-04.mp4', thumb: 'portfolio-videos/posters/reel-take-04.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Reel take 05', duration: '0:51', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/reel-take-05.mp4', thumb: 'portfolio-videos/posters/reel-take-05.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Memories — dark moments edit', duration: '0:40', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/memories-reel.mp4', thumb: 'portfolio-videos/posters/memories-reel.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Creatine Q&A — Dr Dumindu', duration: '0:41', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/creatine-qa.mp4', thumb: 'portfolio-videos/posters/creatine-qa.jpg' },
 
     /* ---- Long form (landscape) ---- */
-    { kind: 'film', cat: 'social', title: 'Interact Club — officials board 2023/24', duration: '4:55', url: 'portfolio-videos/interact-board-2023-24.mp4', thumb: 'portfolio-videos/posters/interact-board-2023-24.jpg' }
+    { kind: 'film', cat: 'social', title: 'Interact Club — officials board 2023/24', duration: '4:55', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/interact-board-2023-24.mp4', thumb: 'portfolio-videos/posters/interact-board-2023-24.jpg' }
   ];
 
   /* ---------- helpers ---------- */
