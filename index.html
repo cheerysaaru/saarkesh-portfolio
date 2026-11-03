@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-role="video">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -12,6 +12,14 @@
 <script>
   /* Set theme before first paint so there is no flash */
   try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') { document.documentElement.dataset.theme = t; } } catch (e) {}
+  /* Pick the portfolio role before first paint: ?role=design  |  #design  |  last choice  |  video */
+  try {
+    var qr = new URLSearchParams(location.search).get('role');
+    var hr = location.hash.slice(1);
+    var sr = null; try { sr = localStorage.getItem('role'); } catch (e) {}
+    var pick = (qr === 'design' || qr === 'video') ? qr : (hr === 'design' || hr === 'video') ? hr : sr;
+    document.documentElement.dataset.role = pick === 'design' ? 'design' : 'video';
+  } catch (e) {}
 </script>
 <style>
   /* ============ TOKENS ============ */
@@ -111,6 +119,7 @@
     font-weight: 700;
     font-size: 0.9375rem;
     text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
     transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
   }
@@ -184,6 +193,56 @@
   @media (max-width: 860px) {
     .nav-links { display: none; }
   }
+
+
+  /* ============ ROLE SWITCH ============ */
+  html[data-role="video"] [data-show="design"],
+  html[data-role="design"] [data-show="video"] { display: none !important; }
+  .nav-left { display: flex; align-items: center; gap: 14px; min-width: 0; flex-shrink: 0; }
+  .nav-right { flex-shrink: 0; }
+  .role-switch {
+    display: inline-flex;
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+  .role-switch button {
+    min-height: 34px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+  .role-switch button:hover { color: var(--fg); }
+  .role-switch button[aria-pressed="true"] { background: var(--fg); color: var(--on-fg); }
+  .role-switch button:focus-visible { border-radius: 999px; }
+  .role-switch .short { display: none; }
+  @media (max-width: 700px) {
+    .nav-left { gap: 8px; }
+    .nav-right { gap: 8px; }
+    .role-switch button { padding: 0 11px; font-size: 0.8125rem; }
+    .nav-right .pill { padding: 8px 14px; font-size: 0.875rem; }
+  }
+  @media (max-width: 1080px) {
+    .role-switch .full { display: none; }
+    .role-switch .short { display: inline; }
+  }
+  @media (max-width: 370px) { .nav-right .pill { display: none; } }
+  @keyframes roleFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  main.swap { animation: roleFade 0.45s var(--ease) both; }
+
+  /* Design grids */
+  .grid-designs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 700px) { .grid-designs { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+  .tile--design .tile-btn { aspect-ratio: 4 / 5; }
+  .popup-ratio img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
 
   /* ============ HERO ============ */
   .hero {
@@ -562,9 +621,13 @@
 
   /* ============ SMALL SCREENS: stack two-column layouts ============ */
   @media (max-width: 860px) {
-    .about-grid { grid-template-columns: 1fr; }
-    .split { grid-template-columns: 1fr; }
+    .about-grid { grid-template-columns: minmax(0, 1fr); }
+    .split { grid-template-columns: minmax(0, 1fr); }
     .split-head { position: static; }
+  }
+  .facts dd { min-width: 0; overflow-wrap: anywhere; }
+  @media (max-width: 480px) {
+    .facts .row { grid-template-columns: 92px minmax(0, 1fr); gap: 12px; }
   }
 
   /* ============ REVEAL ============ */
@@ -617,13 +680,22 @@
 <!-- ============ NAV ============ -->
 <header class="nav">
   <div class="wrap nav-inner">
-    <a class="logo" href="#top" aria-label="Saarkesh — back to top">S.</a>
+    <div class="nav-left">
+      <a class="logo" href="#top" aria-label="Saarkesh — back to top">S.</a>
+      <div class="role-switch" role="group" aria-label="Choose portfolio">
+        <button type="button" data-role-btn="video" aria-pressed="true"><span class="full">Video Editor</span><span class="short">Video</span></button>
+        <button type="button" data-role-btn="design" aria-pressed="false"><span class="full">Graphic Designer</span><span class="short">Design</span></button>
+      </div>
+    </div>
     <nav aria-label="Primary">
       <ul class="nav-links">
         <li><a href="#about">About</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#reels">Reels</a></li>
-        <li><a href="#films">Films</a></li>
+        <li data-show="video"><a href="#experience">Experience</a></li>
+        <li data-show="video"><a href="#reels">Reels</a></li>
+        <li data-show="video"><a href="#films">Films</a></li>
+        <li data-show="design"><a href="#experience-design">Experience</a></li>
+        <li data-show="design"><a href="#work">Work</a></li>
+        <li data-show="design"><a href="#branding">Branding</a></li>
       </ul>
     </nav>
     <div class="nav-right">
@@ -642,13 +714,13 @@
   <section class="hero" id="top">
     <div class="wrap">
       <p class="badge"><span class="dot" aria-hidden="true"></span> Available for freelance work</p>
-      <h1 class="display" id="heroTitle">Video Editor Portfolio.</h1>
-      <p class="hero-sub">Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.</p>
+      <h1 class="display" id="heroTitle"><span data-show="video">Video Editor Portfolio.</span><span data-show="design">Graphic Design Portfolio.</span></h1>
+      <p class="hero-sub"><span data-show="video">Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.</span><span data-show="design">Posters that stop the scroll, logos with a point of view, and social graphics that make a brand feel real — designed in Colombo by Saarkesh.</span></p>
     </div>
   </section>
 
   <!-- ============ MARQUEE ============ -->
-  <div class="marquee" aria-hidden="true">
+  <div class="marquee" aria-hidden="true" data-show="video">
     <div class="marquee-track" id="marqueeTrack">
       <span>Reels</span><span class="sep">/</span>
       <span>Beat-synced Edits</span><span class="sep">/</span>
@@ -658,6 +730,16 @@
       <span>Storytelling</span><span class="sep">/</span>
     </div>
   </div>
+  <div class="marquee" aria-hidden="true" data-show="design">
+    <div class="marquee-track">
+      <span>Social Graphics</span><span class="sep">/</span>
+      <span>Posters</span><span class="sep">/</span>
+      <span>Logo Design</span><span class="sep">/</span>
+      <span>Branding</span><span class="sep">/</span>
+      <span>Thumbnails</span><span class="sep">/</span>
+      <span>Layouts</span><span class="sep">/</span>
+    </div>
+  </div>
 
   <!-- ============ ABOUT ============ -->
   <section id="about">
@@ -665,17 +747,24 @@
       <p class="label reveal">About</p>
       <div class="about-grid">
         <div class="portrait reveal">
-          <img src="images/portrait.jpg" alt="Saarkesh, video editor based in Colombo"
+          <img src="images/portrait.jpg" alt="Saarkesh, video editor and graphic designer based in Colombo"
                width="900" height="1600" loading="lazy" decoding="async">
         </div>
         <div class="bio reveal" style="--i:1">
           <h2 class="display" style="font-size: clamp(2rem, 4.5vw, 3.5rem); margin-bottom: 24px;">Hey, I'm Saarkesh.</h2>
-          <p>I'm a video editor based in Colombo. Most of my work is reels and social media edits — cut tight to the audio, layered with sound effects, and finished with motion graphics that I'm honestly still leveling up on.</p>
-          <p>I also edit wedding films and wedding reels, YouTube videos, and storytelling-style informative videos. I'm still learning, still improving, and I care a lot about pacing: making sure every second earns its place.</p>
-          <p>If your footage needs rhythm and structure, let's talk.</p>
+          <div data-show="video">
+            <p>I'm a video editor based in Colombo. Most of my work is reels and social media edits — cut tight to the audio, layered with sound effects, and finished with motion graphics that I'm honestly still leveling up on.</p>
+            <p>I also edit wedding films and wedding reels, YouTube videos, and storytelling-style informative videos. I'm still learning, still improving, and I care a lot about pacing: making sure every second earns its place.</p>
+            <p>If your footage needs rhythm and structure, let's talk.</p>
+          </div>
+          <div data-show="design">
+            <p>I'm also a graphic designer based in Colombo. I design social media graphics, posters, logos and brand visuals — clean layouts, strong type, and ideas that read at a glance.</p>
+            <p>Coming from video editing, I think a lot about rhythm and hierarchy: where the eye lands first and what it does next. I'm still learning, still improving, and I care about making every element earn its place.</p>
+            <p>If your brand needs a look that sticks, let's talk.</p>
+          </div>
           <dl class="facts">
             <div class="row"><dt>Location</dt><dd>Colombo, Sri Lanka</dd></div>
-            <div class="row"><dt>Focus</dt><dd>Reels, social media edits, motion graphics</dd></div>
+            <div class="row"><dt>Focus</dt><dd><span data-show="video">Reels, social media edits, motion graphics</span><span data-show="design">Social graphics, posters, logos, branding</span></dd></div>
             <div class="row"><dt>Email</dt><dd><a href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a></dd></div>
             <div class="row"><dt>Instagram</dt><dd><a href="https://instagram.com/4o4_erro" target="_blank" rel="noopener noreferrer">@4o4_erro</a></dd></div>
           </dl>
@@ -684,8 +773,66 @@
     </div>
   </section>
 
+
+  <!-- ============ DESIGN: EXPERIENCE ============ -->
+  <section id="experience-design" data-show="design">
+    <div class="wrap split">
+      <div class="split-head reveal">
+        <p class="label">Experience</p>
+        <h2 class="display">What I design.</h2>
+      </div>
+      <div>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Social Media Graphics</h3><span class="work-tag">Main work</span></div>
+          <p class="work-role">Social content designer</p>
+          <p>Post, carousel and story designs that keep a brand looking consistent and easy to recognise across Instagram and beyond.</p>
+        </article>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Posters &amp; Flyers</h3><span class="work-tag">Print + digital</span></div>
+          <p class="work-role">Poster designer</p>
+          <p>Event and promo posters with clear hierarchy, bold type and a layout that gets the message across in a glance.</p>
+        </article>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Logo &amp; Branding</h3><span class="work-tag">Identity</span></div>
+          <p class="work-role">Brand designer</p>
+          <p>Logos and simple brand systems — colours, type and usage — so a small brand looks put together from day one.</p>
+        </article>
+        <article class="work-item reveal">
+          <div class="work-top"><h3>Thumbnails &amp; Banners</h3><span class="work-tag">Digital</span></div>
+          <p class="work-role">Thumbnail &amp; banner designer</p>
+          <p>YouTube thumbnails, covers and banners designed to be clicked, and to match the video they belong to.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DESIGN: WORK ============ -->
+  <section id="work" data-show="design">
+    <div class="wrap">
+      <p class="label reveal">Selected work</p>
+      <h2 class="display reveal">Design work.</h2>
+      <div class="filters reveal" role="group" aria-label="Filter design work" data-grid="designGrid" data-empty="designEmpty">
+        <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
+        <button class="filter" type="button" data-filter="social" aria-pressed="false">Social</button>
+        <button class="filter" type="button" data-filter="posters" aria-pressed="false">Posters</button>
+        <button class="filter" type="button" data-filter="logos" aria-pressed="false">Logos</button>
+      </div>
+      <div class="grid-designs" id="designGrid"></div>
+      <p class="grid-empty" id="designEmpty" hidden>Nothing in this category yet — try <b>All</b>, or check back soon.</p>
+    </div>
+  </section>
+
+  <!-- ============ DESIGN: BRANDING ============ -->
+  <section id="branding" data-show="design">
+    <div class="wrap">
+      <p class="label reveal">Case studies</p>
+      <h2 class="display reveal">Branding.</h2>
+      <div class="grid-films" id="brandGrid" style="margin-top: clamp(24px, 3vw, 40px);"></div>
+    </div>
+  </section>
+
   <!-- ============ WHAT I DO / EXPERIENCE ============ -->
-  <section id="experience">
+  <section id="experience" data-show="video">
     <div class="wrap split">
       <div class="split-head reveal">
         <p class="label">Experience</p>
@@ -717,11 +864,11 @@
   </section>
 
   <!-- ============ REELS ============ -->
-  <section id="reels">
+  <section id="reels" data-show="video">
     <div class="wrap">
       <p class="label reveal">Selected work</p>
       <h2 class="display reveal">Reels &amp; social.</h2>
-      <div class="filters reveal" role="group" aria-label="Filter reels">
+      <div class="filters reveal" role="group" aria-label="Filter reels" data-grid="reelsGrid" data-empty="gridEmpty">
         <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
         <button class="filter" type="button" data-filter="social" aria-pressed="false">Social</button>
         <button class="filter" type="button" data-filter="wedding" aria-pressed="false">Wedding</button>
@@ -733,7 +880,7 @@
   </section>
 
   <!-- ============ LONG FORM ============ -->
-  <section id="films">
+  <section id="films" data-show="video">
     <div class="wrap">
       <p class="label reveal">Long form</p>
       <h2 class="display reveal">Films &amp; stories.</h2>
@@ -742,7 +889,7 @@
   </section>
 
   <!-- ============ TOOLS ============ -->
-  <section id="tools">
+  <section id="tools" data-show="video">
     <div class="wrap">
       <p class="label reveal">Toolkit</p>
       <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);">Tools I edit with.</h2>
@@ -758,11 +905,27 @@
     </div>
   </section>
 
+
+  <!-- ============ DESIGN: TOOLS ============ -->
+  <section id="tools-design" data-show="design">
+    <div class="wrap">
+      <p class="label reveal">Toolkit</p>
+      <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);">Tools I design with.</h2>
+      <!-- Confirm / edit this list to match what you actually use -->
+      <div class="tools reveal">
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.85 8.42c-.37-.15-.77-.21-1.18-.2-.26 0-.49 0-.68.01-.2-.01-.34 0-.41.01v3.36c.14.01.27.02.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03.01-.31-.07-.62-.23-.89-.17-.26-.41-.46-.7-.57zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.899c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.391 11.65c-.399.56-.959.98-1.609 1.22-.68.25-1.43.34-2.25.34-.24 0-.4 0-.5-.01s-.24-.01-.43-.01v3.209c.01.07-.04.131-.11.141H5.52c-.08 0-.12-.041-.12-.131V6.42c0-.07.03-.11.1-.11.17 0 .33 0 .56-.01.24-.01.49-.01.76-.02s.56-.01.87-.02c.31-.01.61-.01.91-.01.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.149.42.229.85.229 1.3.001.86-.199 1.57-.6 2.13zm7.091 3.89c-.28.4-.671.709-1.12.891-.49.209-1.09.318-1.811.318-.459 0-.91-.039-1.359-.129-.35-.061-.7-.17-1.02-.32-.07-.039-.121-.109-.111-.189v-1.74c0-.029.011-.07.041-.09.029-.02.06-.01.09.01.39.23.8.391 1.24.49.379.1.779.15 1.18.15.38 0 .65-.051.83-.141.16-.07.27-.24.27-.42 0-.141-.08-.27-.24-.4-.16-.129-.489-.279-.979-.471-.51-.18-.979-.42-1.42-.719-.31-.221-.569-.51-.761-.85-.159-.32-.239-.67-.229-1.021 0-.43.12-.84.341-1.21.25-.4.619-.72 1.049-.92.469-.239 1.059-.349 1.769-.349.41 0 .83.03 1.24.09.3.04.59.12.86.23.039.01.08.05.1.09.01.04.02.08.02.12v1.63c0 .04-.02.08-.05.1-.09.02-.14.02-.18 0-.3-.16-.62-.27-.96-.34-.37-.08-.74-.13-1.12-.13-.2-.01-.41.02-.601.07-.129.03-.24.1-.31.2-.05.08-.08.18-.08.27s.04.18.101.26c.09.11.209.2.34.27.229.12.47.23.709.33.541.18 1.061.43 1.541.73.33.209.6.49.789.83.16.318.24.67.23 1.029.011.471-.129.94-.389 1.331z"/></svg>Photoshop</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>Illustrator</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>Figma</span>
+        <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>Canva</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ CONTACT ============ -->
   <section id="contact">
     <div class="wrap">
       <div class="contact-block reveal">
-        <h2 class="display">Let's cut something great.</h2>
+        <h2 class="display"><span data-show="video">Let's cut something great.</span><span data-show="design">Let's make something great.</span></h2>
         <a class="contact-mail" href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a>
         <div class="contact-socials">
           <a class="pill" href="https://instagram.com/4o4_erro" target="_blank" rel="noopener noreferrer">Instagram @4o4_erro</a>
@@ -777,7 +940,7 @@
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap footer-inner">
-    <span>© <span id="year">2026</span> Saarkesh — Video Editor, Colombo</span>
+    <span>© <span id="year">2026</span> Saarkesh — <span data-show="video">Video Editor</span><span data-show="design">Graphic Designer</span>, Colombo</span>
     <span>Available for freelance work</span>
   </div>
 </footer>
@@ -824,6 +987,26 @@
     { kind: 'film', cat: 'social', title: 'Interact Club — officials board 2023/24', duration: '4:55', url: 'https://github.com/cheerysaaru/saarkesh-portfolio/releases/download/videos-v1/interact-board-2023-24.mp4', thumb: 'portfolio-videos/posters/interact-board-2023-24.jpg' }
   ];
 
+  /* =====================================================================
+     EDIT ME — graphic design projects (the Graphic Designer portfolio).
+     kind : 'work' = tile in "Design work", 'brand' = wide tile in "Branding"
+     cat  : 'social' | 'posters' | 'logos'  (used by the filter buttons; ignored for 'brand')
+     label: small text shown at the right of the tile (e.g. 'Poster')
+     thumb: image path, e.g. "images/design/poster-01.jpg" ("" shows a placeholder tile)
+     ===================================================================== */
+  var DESIGNS = [
+    { kind: 'work', cat: 'social',  title: 'Social Post 01',  label: 'Social',  thumb: '' },
+    { kind: 'work', cat: 'social',  title: 'Social Post 02',  label: 'Social',  thumb: '' },
+    { kind: 'work', cat: 'social',  title: 'Social Post 03',  label: 'Social',  thumb: '' },
+    { kind: 'work', cat: 'posters', title: 'Poster 01',       label: 'Poster',  thumb: '' },
+    { kind: 'work', cat: 'posters', title: 'Poster 02',       label: 'Poster',  thumb: '' },
+    { kind: 'work', cat: 'posters', title: 'Poster 03',       label: 'Poster',  thumb: '' },
+    { kind: 'work', cat: 'logos',   title: 'Logo 01',         label: 'Logo',    thumb: '' },
+    { kind: 'work', cat: 'logos',   title: 'Logo 02',         label: 'Logo',    thumb: '' },
+    { kind: 'brand', cat: 'branding', title: 'Brand Identity 01', label: 'Branding', thumb: '' },
+    { kind: 'brand', cat: 'branding', title: 'Brand Identity 02', label: 'Branding', thumb: '' }
+  ];
+
   /* ---------- helpers ---------- */
   var $ = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
@@ -843,10 +1026,17 @@
     syncToggleLabel();
   });
 
-  /* ---------- hero: letter-by-letter ---------- */
+  /* ---------- hero: letter-by-letter (rebuilt whenever the role changes) ---------- */
   var heroTitle = $('#heroTitle');
+  var heroTexts = {};
   if (heroTitle) {
-    var text = heroTitle.textContent.trim();
+    ['video', 'design'].forEach(function (r) {
+      var s = heroTitle.querySelector('[data-show="' + r + '"]');
+      heroTexts[r] = s ? s.textContent.trim() : '';
+    });
+  }
+  function buildHero(text) {
+    if (!heroTitle || !text) { return; }
     heroTitle.setAttribute('aria-label', text);
     heroTitle.textContent = '';
     var idx = 0;
@@ -876,9 +1066,46 @@
     });
   }
 
+  /* ---------- role switch: Video Editor / Graphic Designer ---------- */
+  var META = {
+    video: {
+      title: 'Saarkesh — Video Editor, Colombo',
+      desc: 'Saarkesh — video editor based in Colombo. Reels & social edits, wedding films, YouTube edits and storytelling videos.'
+    },
+    design: {
+      title: 'Saarkesh — Graphic Designer, Colombo',
+      desc: 'Saarkesh — graphic designer based in Colombo. Social media graphics, posters, logos and branding.'
+    }
+  };
+  var roleBtns = $$('[data-role-btn]');
+  var metaDesc = $('meta[name="description"]');
+  var mainEl = $('#main');
+
+  function renderRole(role) {
+    root.dataset.role = role;
+    roleBtns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.roleBtn === role)); });
+    document.title = META[role].title;
+    if (metaDesc) { metaDesc.setAttribute('content', META[role].desc); }
+    buildHero(heroTexts[role]);
+  }
+  renderRole(root.dataset.role === 'design' ? 'design' : 'video');
+
+  roleBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var role = b.dataset.roleBtn;
+      if (role === root.dataset.role) { return; }
+      renderRole(role);
+      try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch (e) { window.scrollTo(0, 0); }
+      mainEl.classList.remove('swap');
+      void mainEl.offsetWidth;
+      mainEl.classList.add('swap');
+      try { localStorage.setItem('role', role); } catch (e) {}
+      try { history.replaceState(null, '', '?role=' + role); } catch (e) {}
+    });
+  });
+
   /* ---------- marquee: duplicate for a seamless loop ---------- */
-  var track = $('#marqueeTrack');
-  if (track) { track.innerHTML += track.innerHTML; }
+  $$('.marquee-track').forEach(function (t) { t.innerHTML += t.innerHTML; });
 
   /* ---------- build tiles ---------- */
   var PLAY_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.14v13.72L19 12z"/></svg>';
@@ -920,17 +1147,56 @@
     else { filmsGrid.appendChild(buildTile(v, i)); }
   });
 
-  /* ---------- filters ---------- */
-  $$('.filter').forEach(function (f) {
-    f.addEventListener('click', function () {
-      $$('.filter').forEach(function (o) { o.setAttribute('aria-pressed', String(o === f)); });
-      var cat = f.dataset.filter;
-      var shown = 0;
-      $$('.tile--reel', reelsGrid).forEach(function (tile) {
-        tile.hidden = !(cat === 'all' || tile.dataset.cat === cat);
-        if (!tile.hidden) { shown++; }
+  /* ---------- design tiles ---------- */
+  function buildDesignTile(d, i) {
+    var isBrand = d.kind === 'brand';
+    var el = document.createElement('article');
+    el.className = 'tile reveal ' + (isBrand ? 'tile--film' : 'tile--design');
+    el.dataset.cat = d.cat;
+    el.style.setProperty('--i', i % 8);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tile-btn';
+    btn.dataset.index = i;
+    btn.dataset.kind = 'design';
+
+    var media = d.thumb
+      ? '<img src="' + d.thumb + '" alt="' + (d.title + ' — design').replace(/"/g, '&quot;') + '" loading="lazy">'
+      : '<span class="ph" aria-hidden="true"><b>' + d.title.charAt(0) + '</b></span>';
+    btn.innerHTML = media + '<span class="sr-only">View ' + d.title + '</span>';
+
+    var meta = document.createElement('div');
+    meta.className = 'tile-meta';
+    meta.innerHTML = '<h3>' + d.title + '</h3><span>' + d.label + '</span>';
+
+    el.appendChild(btn);
+    el.appendChild(meta);
+    return el;
+  }
+  var designGrid = $('#designGrid');
+  var brandGrid = $('#brandGrid');
+  DESIGNS.forEach(function (d, i) {
+    if (d.kind === 'brand') { brandGrid.appendChild(buildDesignTile(d, i)); }
+    else { designGrid.appendChild(buildDesignTile(d, i)); }
+  });
+
+  /* ---------- filters (each .filters group controls its own grid) ---------- */
+  $$('.filters').forEach(function (group) {
+    var grid = document.getElementById(group.dataset.grid);
+    var empty = document.getElementById(group.dataset.empty);
+    var buttons = $$('.filter', group);
+    buttons.forEach(function (f) {
+      f.addEventListener('click', function () {
+        buttons.forEach(function (o) { o.setAttribute('aria-pressed', String(o === f)); });
+        var cat = f.dataset.filter;
+        var shown = 0;
+        $$('.tile', grid).forEach(function (tile) {
+          tile.hidden = !(cat === 'all' || tile.dataset.cat === cat);
+          if (!tile.hidden) { shown++; }
+        });
+        if (empty) { empty.hidden = shown > 0; }
       });
-      $('#gridEmpty').hidden = shown > 0;
     });
   });
 
@@ -996,6 +1262,33 @@
     popupClose.focus();
   }
 
+  function openDesign(i) {
+    var d = DESIGNS[i];
+    if (!d) { return; }
+    lastFocus = document.activeElement;
+    popupTitle.textContent = d.title;
+    if (d.thumb) {
+      popupRatio.innerHTML = '<img id="popupImg" src="' + d.thumb + '" alt="' + d.title.replace(/"/g, '&quot;') + '">';
+      var img = document.getElementById('popupImg');
+      var fit = function () {
+        if (!img.naturalWidth || !img.naturalHeight) { return; }
+        var card = popup.querySelector('.popup-card');
+        var maxH = Math.round(window.innerHeight * 0.74);
+        var w = Math.min(1040, Math.round(maxH * img.naturalWidth / img.naturalHeight), window.innerWidth - 32);
+        popupRatio.style.aspectRatio = img.naturalWidth + ' / ' + img.naturalHeight;
+        card.style.width = w + 'px';
+      };
+      img.addEventListener('load', fit);
+      if (img.complete) { fit(); }
+    } else {
+      popupRatio.innerHTML = '<div class="popup-note"><p>Image coming soon.</p></div>';
+    }
+    popup.hidden = false;
+    popup.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    popupClose.focus();
+  }
+
   function closePopup() {
     popup.classList.remove('open');
     popup.hidden = true;
@@ -1008,7 +1301,10 @@
 
   document.addEventListener('click', function (e) {
     var btn = e.target.closest ? e.target.closest('.tile-btn') : null;
-    if (btn) { openPopup(Number(btn.dataset.index)); }
+    if (btn) {
+      if (btn.dataset.kind === 'design') { openDesign(Number(btn.dataset.index)); }
+      else { openPopup(Number(btn.dataset.index)); }
+    }
   });
   popupClose.addEventListener('click', closePopup);
   $('#popupBackdrop').addEventListener('click', closePopup);
@@ -1083,6 +1379,15 @@
 
   /* ---------- misc ---------- */
   $('#year').textContent = String(new Date().getFullYear());
+
+  /* ---------- service worker: cache assets for offline/speed ---------- */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js')
+        .then(function (reg) { console.log('SW registered', reg.scope); })
+        .catch(function (err) { console.warn('SW registration failed', err); });
+    });
+  }
 })();
 </script>
 </body>
