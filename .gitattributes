@@ -1,2 +1,0 @@
-# MP4 videos are stored directly (not via Git LFS) for GitHub Pages compatibility
-*.mp4 binary
