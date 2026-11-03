@@ -976,6 +976,7 @@
     { kind: 'reel', cat: 'motion', title: 'AI Restaurant Search: App Demo', duration: '0:19', url: 'portfolio-videos/ai-search-demo.mp4', thumb: 'portfolio-videos/posters/ai-search-demo.jpg' },
     { kind: 'reel', cat: 'motion', title: 'Video 1022', duration: '0:21', url: 'portfolio-videos/1022.mp4', thumb: 'portfolio-videos/posters/1022.jpg' },
     { kind: 'reel', cat: 'social', title: 'Doctor Intro: Join Me for This Game', duration: '1:20', url: 'portfolio-videos/final-out.mp4', thumb: 'portfolio-videos/posters/final-out.jpg' },
+    { kind: 'reel', cat: 'social', title: 'Lifestyle Reel: Take 01', duration: '0:35', url: 'portfolio-videos/reel-take-01.mp4', thumb: 'portfolio-videos/posters/reel-take-01.jpg' },
     { kind: 'reel', cat: 'social', title: 'Colour-Graded Lifestyle Reel', duration: '1:01', url: 'portfolio-videos/reel-take-02.mp4', thumb: 'portfolio-videos/posters/reel-take-02.jpg' },
     { kind: 'reel', cat: 'social', title: 'Creator Talking Reel: Captioned Edit', duration: '0:38', url: 'portfolio-videos/reel-take-03.mp4', thumb: 'portfolio-videos/posters/reel-take-03.jpg' },
     { kind: 'reel', cat: 'social', title: 'Kitchen Lifestyle Reel', duration: '1:19', url: 'portfolio-videos/reel-take-04.mp4', thumb: 'portfolio-videos/posters/reel-take-04.jpg' },
@@ -995,16 +996,16 @@
      thumb: image path, e.g. "images/design/poster-01.jpg" ("" shows a placeholder tile)
      ===================================================================== */
   var DESIGNS = [
-    { kind: 'work', cat: 'social',  title: 'Social Post 01',  label: 'Social',  thumb: '' },
-    { kind: 'work', cat: 'social',  title: 'Social Post 02',  label: 'Social',  thumb: '' },
-    { kind: 'work', cat: 'social',  title: 'Social Post 03',  label: 'Social',  thumb: '' },
-    { kind: 'work', cat: 'posters', title: 'Poster 01',       label: 'Poster',  thumb: '' },
-    { kind: 'work', cat: 'posters', title: 'Poster 02',       label: 'Poster',  thumb: '' },
-    { kind: 'work', cat: 'posters', title: 'Poster 03',       label: 'Poster',  thumb: '' },
-    { kind: 'work', cat: 'logos',   title: 'Logo 01',         label: 'Logo',    thumb: '' },
-    { kind: 'work', cat: 'logos',   title: 'Logo 02',         label: 'Logo',    thumb: '' },
-    { kind: 'brand', cat: 'branding', title: 'Brand Identity 01', label: 'Branding', thumb: '' },
-    { kind: 'brand', cat: 'branding', title: 'Brand Identity 02', label: 'Branding', thumb: '' }
+    { kind: 'work', cat: 'social',  title: 'Social Post 01',  label: 'Social',  thumb: 'images/design/social/social-01.png' },
+    { kind: 'work', cat: 'social',  title: 'Social Post 02',  label: 'Social',  thumb: 'images/design/social/social-02.png' },
+    { kind: 'work', cat: 'social',  title: 'Social Post 03',  label: 'Social',  thumb: 'images/design/social/social-03.png' },
+    { kind: 'work', cat: 'posters', title: 'Poster 01',       label: 'Poster',  thumb: 'images/design/posters/poster-01.png' },
+    { kind: 'work', cat: 'posters', title: 'Poster 02',       label: 'Poster',  thumb: 'images/design/posters/poster-02.png' },
+    { kind: 'work', cat: 'posters', title: 'Poster 03',       label: 'Poster',  thumb: 'images/design/posters/poster-03.png' },
+    { kind: 'work', cat: 'logos',   title: 'Logo 01',         label: 'Logo',    thumb: 'images/design/logos/logo-01.png' },
+    { kind: 'work', cat: 'logos',   title: 'Logo 02',         label: 'Logo',    thumb: 'images/design/logos/logo-02.png' },
+    { kind: 'brand', cat: 'branding', title: 'Brand Identity 01', label: 'Branding', thumb: 'images/design/branding/branding-01.png' },
+    { kind: 'brand', cat: 'branding', title: 'Brand Identity 02', label: 'Branding', thumb: 'images/design/branding/branding-02.png' }
   ];
 
   /* ---------- helpers ---------- */
@@ -1227,10 +1228,10 @@
     var isLocal = /\.(mp4|webm|mov|m4v|ogg|ogv)(\?|#|$)/i.test(v.url || '');
 
     if (v.url && isLocal) {
-      /* local file: play it in a <video> that fits itself to the video's shape */
-      popupRatio.innerHTML = '<video id="popupVideo" controls autoplay playsinline preload="metadata" src="' + v.url + '" type="video/mp4"></video>';
+      /* local file: play it in a <video> with source element, playsinline, and robust error/autoplay handling */
+      popupRatio.innerHTML = '<video id="popupVideo" controls autoplay playsinline webkit-playsinline preload="auto"><source src="' + v.url + '" type="video/mp4">Your browser does not support video playback.</video>';
       var vid = document.getElementById('popupVideo');
-      
+
       vid.addEventListener('loadedmetadata', function () {
         if (!vid.videoWidth || !vid.videoHeight) { return; }
         var card = popup.querySelector('.popup-card');
@@ -1240,17 +1241,22 @@
         popupRatio.style.aspectRatio = vid.videoWidth + ' / ' + vid.videoHeight;
         card.style.width = maxW + 'px';
       });
-      
+
       vid.addEventListener('error', function () {
-        popupRatio.innerHTML = 
+        popupRatio.innerHTML =
           '<div class="popup-note">' +
-          '<p>Video could not be loaded.</p>' +
+          '<p>Video could not be loaded or network error occurred.</p>' +
           '<a class="pill" href="' + v.url + '" target="_blank" rel="noopener noreferrer">Open video in new tab</a>' +
           '</div>';
       });
-      
+
       var tryPlay = vid.play();
-      if (tryPlay && tryPlay.catch) { tryPlay.catch(function () {}); }
+      if (tryPlay && tryPlay.catch) {
+        tryPlay.catch(function (err) {
+          /* Autoplay restricted by browser policy; user can click play control */
+          console.log('Autoplay prevented:', err);
+        });
+      }
     } else if (embed && embed.type !== 'instagram') {
       popupRatio.innerHTML = '<iframe src="' + embed.src + '" title="' + v.title.replace(/"/g, '&quot;') +
         '" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>';
