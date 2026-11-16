@@ -476,7 +476,7 @@
     "reelCols": 4,
     "designCols": 3,
     "reelStyle": "grid",
-    "designStyle": "grid",
+    "designStyle": "masonry",
     "hoverPreview": true,
     "sections": {
       "video": [
