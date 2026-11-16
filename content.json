@@ -226,6 +226,16 @@
   ],
   "videos": [
     {
+      "id": "v04",
+      "kind": "reel",
+      "cat": "motion",
+      "title": "Video 1022",
+      "duration": "0:21",
+      "url": "portfolio-videos/1022.mp4",
+      "thumb": "portfolio-videos/posters/1022.jpg",
+      "hidden": false
+    },
+    {
       "id": "v01",
       "kind": "reel",
       "cat": "social",
@@ -253,16 +263,6 @@
       "duration": "0:19",
       "url": "portfolio-videos/ai-search-demo.mp4",
       "thumb": "portfolio-videos/posters/ai-search-demo.jpg",
-      "hidden": false
-    },
-    {
-      "id": "v04",
-      "kind": "reel",
-      "cat": "motion",
-      "title": "Video 1022",
-      "duration": "0:21",
-      "url": "portfolio-videos/1022.mp4",
-      "thumb": "portfolio-videos/posters/1022.jpg",
       "hidden": false
     },
     {
