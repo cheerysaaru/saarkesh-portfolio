@@ -1196,8 +1196,15 @@ function startSite() {
     setTimeout(function () { go(fallback); }, 4000);
     return;
   }
-  fetch('content.json?t=' + Date.now(), { cache: 'no-store' })
-    .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+  /* content.live.json = what the dashboard last published straight to the server;
+     content.json = the copy in GitHub. Use the first one that loads. */
+  function load(url) {
+    return fetch(url + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+      .then(function (j) { if (!j || !j.videos || !j.roles) { throw new Error('bad'); } return j; });
+  }
+  load('content.live.json')
+    .catch(function () { return load('content.json'); })
     .then(go)
     .catch(function () { go(fallback); });
 }

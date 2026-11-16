@@ -461,6 +461,14 @@
         if (next !== f.text) { return putFile('index.html', next, f.sha, 'Update page title and share preview from dashboard'); }
       }).catch(function (e) { console.warn('SEO update skipped', e); });
     }).then(function () {
+      /* also save straight onto the live server, so it shows right away (no Git pull needed) */
+      if (cfg.serverUrl && cfg.serverKey) {
+        return serverCall('savecontent', { content: JSON.stringify(c) }).then(function () {
+          toast('Published — it’s live now. <a href="../" target="_blank" rel="noopener noreferrer">Open site ↗</a>', null, 7000);
+        }, function (er) {
+          toast('Saved to GitHub, but your server didn’t take it: ' + esc(er.message), 'error', 12000);
+        });
+      }
       toast('Published! Your site updates in about a minute. <a href="../" target="_blank" rel="noopener noreferrer">Open site ↗</a>', null, 7000);
     }).catch(function (e) {
       if (e.message !== 'cancelled') { toast('Could not publish: ' + esc(e.message), 'error', 8000); }

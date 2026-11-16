@@ -10,3 +10,5 @@ desktop.ini
 
 # upload.php holds your private upload key: keep it off GitHub
 server-upload/
+# written on the server by the dashboard
+content.live.json

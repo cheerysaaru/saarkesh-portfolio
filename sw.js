@@ -1,4 +1,4 @@
-var CACHE_NAME = 'saarkesh-portfolio-v3';
+var CACHE_NAME = 'saarkesh-portfolio-v4';
 var ASSETS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap'
 ];
@@ -21,7 +21,7 @@ self.addEventListener('fetch', function (event) {
      - videos and any range request (cached copies break seeking/playback)
      - Cloudinary / GitHub (they have their own caching) */
   if (req.mode === 'navigate' ||
-      /\/content\.json$/.test(url.pathname) ||
+      /\/content(\.live)?\.json$/.test(url.pathname) ||
       /\/admin(\/|$)/.test(url.pathname) ||
       req.headers.has('range') ||
       /\.(mp4|webm|mov|m4v)$/i.test(url.pathname) ||
