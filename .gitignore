@@ -7,3 +7,6 @@
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# upload.php holds your private upload key: keep it off GitHub
+server-upload/

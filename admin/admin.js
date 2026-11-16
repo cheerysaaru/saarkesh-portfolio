@@ -139,11 +139,114 @@
   /* =================================================================== *
    *  Cloudinary upload (chunked for big videos, with progress)
    * =================================================================== */
-  function cloudReady() {
-    if (cfg.cloud && cfg.preset) { return true; }
-    toast('Add your Cloudinary details in <b>Settings</b> first, then try again.', 'error', 6000);
+  function storage() { return cfg.storage || (cfg.serverUrl ? 'server' : 'cloudinary'); }
+  function mediaReady() {
+    if (storage() === 'server' ? (cfg.serverUrl && cfg.serverKey) : (cfg.cloud && cfg.preset)) { return true; }
+    toast('Set up where uploads are stored in <b>Settings</b> first, then try again.', 'error', 6000);
     go('settings');
     return false;
+  }
+
+  /* one upload function for both storages; result always has secure_url */
+  function mediaUpload(file, resource, onProgress) {
+    if (storage() !== 'server') { return cloudUpload(file, resource, onProgress); }
+    if (resource === 'image') {
+      return shrinkImage(file, 2400).then(function (f) { return serverUpload(f, onProgress); })
+        .then(function (r) { return { secure_url: r.url, original_filename: file.name.replace(/\.[^.]+$/, '') }; });
+    }
+    /* video: read length/size and grab a thumbnail in the browser, then upload both */
+    return readVideo(file).then(function (meta) {
+      return serverUpload(file, function (p) { onProgress(p * 0.96); }).then(function (r) {
+        var done = { secure_url: r.url, format: (file.name.split('.').pop() || '').toLowerCase(), duration: meta.duration, width: meta.width, height: meta.height, original_filename: file.name.replace(/\.[^.]+$/, ''), poster: '' };
+        if (!meta.poster) { return done; }
+        var thumb = new File([meta.poster], file.name.replace(/\.[^.]+$/, '') + '-thumb.jpg', { type: 'image/jpeg' });
+        return serverUpload(thumb, function () {}).then(function (t) { done.poster = t.url; onProgress(1); return done; }, function () { return done; });
+      });
+    });
+  }
+
+  function serverUpload(file, onProgress) {
+    var CHUNK = cfg.serverChunk || 1536 * 1024;
+    var total = Math.max(1, Math.ceil(file.size / CHUNK));
+    var id = (uid('') + uid('')).replace(/[^A-Za-z0-9]/g, '').slice(0, 32);
+    function send(i) {
+      return new Promise(function (resolve, reject) {
+        var fd = new FormData();
+        fd.append('action', 'upload');
+        fd.append('uploadId', id); fd.append('index', i); fd.append('total', total);
+        fd.append('size', file.size); fd.append('name', file.name);
+        fd.append('chunk', file.slice(i * CHUNK, (i + 1) * CHUNK), 'chunk');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', cfg.serverUrl);
+        xhr.setRequestHeader('X-Upload-Key', cfg.serverKey);
+        xhr.upload.onprogress = function (e) { if (e.lengthComputable) { onProgress((i * CHUNK + e.loaded * (Math.min(CHUNK, file.size - i * CHUNK) / e.total)) / file.size); } };
+        xhr.onload = function () {
+          var j = {}; try { j = JSON.parse(xhr.responseText); } catch (e) {}
+          if (xhr.status >= 200 && xhr.status < 300 && j.ok) { resolve(j); }
+          else { reject(new Error(j.error || ('Server said ' + xhr.status + (xhr.status === 413 ? ' (piece too big — press Test connection in Settings)' : '')))); }
+        };
+        xhr.onerror = function () { reject(new Error('Could not reach your server. Check the upload address, and that your site address is in ALLOWED_ORIGINS in upload.php.')); };
+        xhr.send(fd);
+      }).then(function (j) { return i < total - 1 ? send(i + 1) : j; });
+    }
+    return send(0);
+  }
+  function serverCall(action, data) {
+    var fd = new FormData();
+    fd.append('action', action);
+    Object.keys(data || {}).forEach(function (k) { fd.append(k, data[k]); });
+    return fetch(cfg.serverUrl + (cfg.serverUrl.indexOf('?') > -1 ? '&' : '?') + 'action=' + action, { method: 'POST', headers: { 'X-Upload-Key': cfg.serverKey }, body: fd })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Server sent something unexpected (' + r.status + '). Is the address right and PHP on?' }; }); })
+      .then(function (j) { if (!j.ok) { throw new Error(j.error || 'Server error'); } return j; });
+  }
+
+  /* read a video file locally: length, size and a thumbnail frame */
+  function readVideo(file) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var v = document.createElement('video');
+      var meta = { duration: 0, width: 0, height: 0, poster: null };
+      var finished = false;
+      function finish() { if (finished) { return; } finished = true; URL.revokeObjectURL(url); resolve(meta); }
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      v.onloadedmetadata = function () {
+        meta.duration = v.duration || 0; meta.width = v.videoWidth; meta.height = v.videoHeight;
+        v.currentTime = Math.min(1, (v.duration || 2) / 2);
+      };
+      v.onseeked = function () {
+        try {
+          var scale = Math.min(1, 720 / Math.max(1, Math.min(v.videoWidth, v.videoHeight)));
+          var cv = document.createElement('canvas');
+          cv.width = Math.round(v.videoWidth * scale); cv.height = Math.round(v.videoHeight * scale);
+          cv.getContext('2d').drawImage(v, 0, 0, cv.width, cv.height);
+          cv.toBlob(function (b) { meta.poster = b; finish(); }, 'image/jpeg', 0.85);
+        } catch (e) { finish(); }
+      };
+      v.onerror = finish;
+      setTimeout(finish, 15000);
+      v.src = url;
+    });
+  }
+  /* big photos are scaled down before upload so the site stays fast */
+  function shrinkImage(file, max) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) { return Promise.resolve(file); }
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var big = Math.max(img.naturalWidth, img.naturalHeight);
+        if (big <= max) { URL.revokeObjectURL(url); return resolve(file); }
+        var s2 = max / big;
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(img.naturalWidth * s2); cv.height = Math.round(img.naturalHeight * s2);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        URL.revokeObjectURL(url);
+        var type = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        cv.toBlob(function (b) { resolve(b ? new File([b], file.name.replace(/\.[^.]+$/, '') + (type === 'image/png' ? '.png' : '.jpg'), { type: type }) : file); }, type, 0.9);
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
   }
   function cloudUpload(file, resource, onProgress) {
     var url = 'https://api.cloudinary.com/v1_1/' + encodeURIComponent(cfg.cloud) + '/' + resource + '/upload';
@@ -180,6 +283,7 @@
     });
   }
   function friendlyUploadError(msg, resource) {
+    if (storage() === 'server') { return msg; }
     if (/file size too large|too large/i.test(msg)) {
       return resource === 'video'
         ? 'Too big for the free Cloudinary plan (100 MB max). Export a smaller version (1080p, lower bitrate) or add it as a YouTube link.'
@@ -198,7 +302,7 @@
     queue = queue.then(function () {
       job.status = 'Uploading';
       renderUploads();
-      return cloudUpload(file, resource, function (p) { job.progress = p; job.status = 'Uploading · ' + Math.round(p * 100) + '%'; updateJob(job); })
+      return mediaUpload(file, resource, function (p) { job.progress = p; job.status = 'Uploading · ' + Math.round(p * 100) + '%'; updateJob(job); })
         .then(function (res) {
           job.progress = 1; job.status = 'Done'; updateJob(job);
           onDone(res);
@@ -227,6 +331,14 @@
   });
 
   function videoFromUpload(r) {
+    if (r.poster !== undefined) {
+      return {
+        id: uid('v'), kind: (r.height && r.width && r.width > r.height) ? 'film' : 'reel',
+        cat: (S.draft.videoCats[0] || {}).id || 'social',
+        title: niceName(r.original_filename || 'New video'), duration: fmtDur(r.duration),
+        url: r.secure_url, thumb: r.poster, hidden: false
+      };
+    }
     var orig = r.secure_url;
     var url = r.format === 'mp4' ? orig : orig.replace('/video/upload/', '/video/upload/f_mp4,vc_h264,q_auto/').replace(/\.[^./]+$/, '.mp4');
     return {
@@ -306,6 +418,23 @@
       (img ? '<meta property="og:image" content="' + esc(img) + '">\n<meta name="twitter:card" content="summary_large_image">\n' : '') +
       '<!--SEO-END-->';
   }
+  function serverUrls(c) {
+    var base = cfg.serverBase;
+    if (!base || !c) { return []; }
+    var out = [];
+    (function walk(o) {
+      if (typeof o === 'string') { if (o.indexOf(base + '/') === 0) { out.push(o); } }
+      else if (o && typeof o === 'object') { Object.keys(o).forEach(function (k) { walk(o[k]); }); }
+    })(c);
+    return out;
+  }
+  function cleanupServer(before, after) {
+    if (!cfg.serverUrl || !cfg.serverKey) { return; }
+    var keep = {}; serverUrls(after).forEach(function (u) { keep[u] = true; });
+    serverUrls(before).filter(function (u) { return !keep[u]; }).forEach(function (u) {
+      serverCall('delete', { url: u }).catch(function (e) { console.warn('could not delete', u, e); });
+    });
+  }
   function publish() {
     if (!isDirty() || S.busy) { return; }
     S.busy = true; updatePublish();
@@ -322,6 +451,7 @@
       return putFile('content.json', JSON.stringify(c, null, 2) + '\n', remote && remote.sha, 'Update portfolio content from dashboard');
     }).then(function (res) {
       S.sha = res.content.sha;
+      cleanupServer(S.published, c);
       S.published = clone(c);
       writeJSON(draftKey(), null);
       /* keep <title>, description and the share preview in index.html in step (crawlers don't run JS) */
@@ -438,7 +568,7 @@
     var catLabel = {}; c.videoCats.forEach(function (k) { catLabel[k.id] = k.label; });
     return header('Videos', 'Drag tiles by the dots to reorder. Changes go live when you press Publish.') +
       '<section class="drop" id="vDrop"><div class="drop-ico">' + ICON.up + '</div><b>Drop videos here</b>' +
-      '<p class="hint">MP4 works best (MOV/WebM are converted). The thumbnail and length are picked up automatically. Free plan: up to 100 MB per video.</p>' +
+      '<p class="hint">' + (storage() === 'server' ? 'MP4 (H.264) works best. The thumbnail and length are picked up automatically. Saved on your server.' : 'MP4 works best (MOV/WebM are converted). The thumbnail and length are picked up automatically. Free plan: up to 100 MB per video.') + '</p>' +
       '<div class="drop-actions"><button class="btn btn--light" type="button" data-act="pick-videos">Choose files</button><button class="btn" type="button" data-act="add-link">' + ICON.link + ' Add YouTube / Vimeo / Instagram link</button></div></section>' +
       '<div class="uploads" id="uploads"></div>' +
       '<div class="toolbar"><div class="chips" role="group" aria-label="Filter">' +
@@ -474,11 +604,11 @@
     var el = m.el;
     function setThumb(u) { v.thumb = u; $('#evThumbBox', el).innerHTML = '<img src="' + esc(sized(u, 300)) + '" alt="" style="width:100%;height:100%;object-fit:cover">'; }
     $('#evThumbUp', el).onclick = function () {
-      if (!cloudReady()) { return; }
+      if (!mediaReady()) { return; }
       pickFiles('image/*').then(function (files) {
         if (!files[0]) { return; }
         $('#evThumbUp', el).innerHTML = '<span class="spin"></span> Uploading…';
-        cloudUpload(files[0], 'image', function () {}).then(function (r) { setThumb(r.secure_url); })
+        mediaUpload(files[0], 'image', function () {}).then(function (r) { setThumb(r.secure_url); })
           .catch(function (e) { toast(esc(friendlyUploadError(e.message, 'image')), 'error'); })
           .then(function () { $('#evThumbUp', el).innerHTML = ICON.image + ' Upload an image'; });
       });
@@ -489,7 +619,7 @@
       framePicker(v, src, setThumb);
     };
     $('#evReplace', el).onclick = function () {
-      if (!cloudReady()) { return; }
+      if (!mediaReady()) { return; }
       pickFiles('video/*').then(function (files) {
         if (!files[0]) { return; }
         m.close();
@@ -525,6 +655,12 @@
       '<div class="modal-foot"><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn btn--light" id="fpUse">Use this frame</button></div>';
     var m = modal('Pick a thumbnail frame', body, { wide: true });
     var vid = $('#fpVid', m.el);
+    var noGrab = false;
+    vid.addEventListener('error', function retry() {
+      if (!vid.hasAttribute('crossorigin')) { return; }
+      vid.removeEventListener('error', retry);
+      noGrab = true; vid.removeAttribute('crossorigin'); vid.src = vid.src;
+    });
     $('#fpUse', m.el).onclick = function () {
       var t = vid.currentTime || 0;
       if (v.orig || isCloud(src)) {
@@ -533,8 +669,9 @@
         m.close();
         return;
       }
-      /* video stored in the repo: grab the frame and upload it as an image */
-      if (!cloudReady()) { return; }
+      /* video on GitHub or your server: grab the frame and upload it as an image */
+      if (noGrab) { toast('Your server doesn’t allow grabbing frames from its videos yet (see the CORS note in Settings). Upload an image instead.', 'error', 8000); return; }
+      if (!mediaReady()) { return; }
       try {
         var cv = document.createElement('canvas');
         cv.width = vid.videoWidth; cv.height = vid.videoHeight;
@@ -542,7 +679,7 @@
         cv.toBlob(function (blob) {
           var btn = $('#fpUse', m.el); btn.innerHTML = '<span class="spin"></span> Saving…';
           var file = new File([blob], 'thumb.jpg', { type: 'image/jpeg' });
-          cloudUpload(file, 'image', function () {}).then(function (r) { done(r.secure_url); m.close(); })
+          mediaUpload(file, 'image', function () {}).then(function (r) { done(r.secure_url); m.close(); })
             .catch(function (e) { toast(esc(e.message), 'error'); btn.textContent = 'Use this frame'; });
         }, 'image/jpeg', 0.88);
       } catch (e) { toast('Could not grab that frame. Upload an image instead.', 'error'); }
@@ -615,7 +752,7 @@
         return '<button type="button" role="tab" data-dtab="' + esc(t.id) + '" aria-pressed="' + (t.id === tab) + '" aria-selected="' + (t.id === tab) + '">' + esc(t.label) + ' · ' + n + '</button>';
       }).join('') + '</div><button class="btn btn--sm" type="button" data-act="design-cats">Edit categories</button></div>' +
       '<section class="drop" id="dDrop"><div class="drop-ico">' + ICON.up + '</div><b>Drop images into “' + esc(label) + '”</b>' +
-      '<p class="hint">PNG, JPG or WebP · up to 10 MB each on the free plan · shown at web size automatically.</p>' +
+      '<p class="hint">PNG, JPG or WebP · ' + (storage() === 'server' ? 'very large images are scaled down to 2400px before upload.' : 'up to 10 MB each on the free plan · shown at web size automatically.') + '</p>' +
       '<div class="drop-actions"><button class="btn btn--light" type="button" data-act="pick-designs">Choose files</button></div></section>' +
       '<div class="uploads" id="uploads"></div>' +
       (items.length ? '<div class="grid' + (tab === '__brand' ? ' grid--wide' : '') + '" id="dGrid">' + items.map(function (x) {
@@ -630,7 +767,7 @@
       }).join('') + '</div>' : '<div class="empty">No designs in “' + esc(label) + '” yet — drop some images above.</div>');
   }
   function addDesignFiles(files) {
-    if (!cloudReady()) { return; }
+    if (!mediaReady()) { return; }
     var tab = S.designTab;
     var label = tab === '__brand' ? 'Branding' : (S.draft.designCats.filter(function (k) { return k.id === tab; })[0] || {}).label || 'Design';
     files.forEach(function (f) {
@@ -653,11 +790,11 @@
       '<div class="modal-foot"><button type="button" class="btn grow" id="edReplace">' + ICON.image + ' Replace image</button><button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn btn--light" id="edSave">Save</button></div>';
     var m = modal('Edit design', body, { wide: true });
     $('#edReplace', m.el).onclick = function () {
-      if (!cloudReady()) { return; }
+      if (!mediaReady()) { return; }
       pickFiles('image/*').then(function (files) {
         if (!files[0]) { return; }
         var b = $('#edReplace', m.el); b.innerHTML = '<span class="spin"></span> Uploading…';
-        cloudUpload(files[0], 'image', function () {}).then(function (r) {
+        mediaUpload(files[0], 'image', function () {}).then(function (r) {
           d.thumb = r.secure_url; $('#edImg', m.el).innerHTML = '<img src="' + esc(sized(d.thumb, 400)) + '" alt="" style="width:100%;display:block">';
         }).catch(function (e) { toast(esc(friendlyUploadError(e.message, 'image')), 'error'); }).then(function () { b.innerHTML = ICON.image + ' Replace image'; });
       });
@@ -720,7 +857,7 @@
         (t.icon && /[/.]/.test(t.icon) ? '<span class="chip" aria-pressed="true">' + toolIcon(t) + 'Your image</span>' : '') + '</div>';
     }
     var body = '<label class="field"><span>Tool name</span><input type="text" id="etName" value="' + esc(t.name) + '" placeholder="Final Cut Pro"></label>' +
-      '<div class="field"><span>Icon</span><div id="etIcons">' + grid() + '</div><button type="button" class="btn btn--sm" id="etUp" style="align-self:flex-start">' + ICON.image + ' Upload a logo (PNG/SVG)</button></div>' +
+      '<div class="field"><span>Icon</span><div id="etIcons">' + grid() + '</div><button type="button" class="btn btn--sm" id="etUp" style="align-self:flex-start">' + ICON.image + ' Upload a logo (PNG)</button></div>' +
       (isNew ? '' : '<label class="switch"><span>Hide from site</span><input type="checkbox" id="etHidden"' + (t.hidden ? ' checked' : '') + '></label>') +
       '<div class="modal-foot">' + (isNew ? '' : '<button type="button" class="btn btn--danger grow" id="etDel">Remove tool</button>') + '<button type="button" class="btn" data-close>Cancel</button><button type="button" class="btn btn--light" id="etSave">' + (isNew ? 'Add tool' : 'Save') + '</button></div>';
     var m = modal(isNew ? 'Add a tool' : 'Edit tool', body);
@@ -729,12 +866,12 @@
       if (b) { t.icon = b.dataset.icon; $('#etIcons', m.el).innerHTML = grid(); }
     });
     $('#etUp', m.el).onclick = function () {
-      if (!cloudReady()) { return; }
+      if (!mediaReady()) { return; }
       pickFiles('image/*').then(function (files) {
         if (!files[0]) { return; }
         var b = $('#etUp', m.el); b.innerHTML = '<span class="spin"></span> Uploading…';
-        cloudUpload(files[0], 'image', function () {}).then(function (r) { t.icon = r.secure_url; $('#etIcons', m.el).innerHTML = grid(); })
-          .catch(function (e) { toast(esc(friendlyUploadError(e.message, 'image')), 'error'); }).then(function () { b.innerHTML = ICON.image + ' Upload a logo (PNG/SVG)'; });
+        mediaUpload(files[0], 'image', function () {}).then(function (r) { t.icon = r.secure_url; $('#etIcons', m.el).innerHTML = grid(); })
+          .catch(function (e) { toast(esc(friendlyUploadError(e.message, 'image')), 'error'); }).then(function () { b.innerHTML = ICON.image + ' Upload a logo (PNG)'; });
       });
     };
     if (!isNew) { $('#etDel', m.el).onclick = function () { list.splice(i, 1); m.close(); changed(true); }; }
@@ -817,11 +954,18 @@
   /* ---------- Settings ---------- */
   function viewSettings() {
     return header('Settings', 'Connections for this device, backups and sign out.') +
-      '<div class="grid-2"><section class="card"><h2>Cloudinary (videos &amp; images)</h2>' +
-      '<label class="field"><span>Cloud name</span><input type="text" id="setCloud" value="' + esc(cfg.cloud || '') + '"></label>' +
-      '<label class="field"><span>Unsigned upload preset</span><input type="text" id="setPreset" value="' + esc(cfg.preset || '') + '"></label>' +
-      '<p class="hint">Cloudinary › Settings › Upload › Upload presets › Add › Signing mode <b>Unsigned</b>, folder <b>portfolio</b>.</p>' +
-      '<button type="button" class="btn btn--light" data-act="save-cloud" style="align-self:flex-start">Save</button></section>' +
+      '<div class="grid-2"><section class="card"><h2>Where uploads are stored</h2>' +
+      '<div class="seg" role="group" aria-label="Storage"><button type="button" data-storage="server" aria-pressed="' + (storage() === 'server') + '">My server (CyberPanel)</button><button type="button" data-storage="cloudinary" aria-pressed="' + (storage() === 'cloudinary') + '">Cloudinary</button></div>' +
+      (storage() === 'server'
+        ? '<label class="field"><span>Upload address</span><input type="url" id="setSrvUrl" value="' + esc(cfg.serverUrl || '') + '" placeholder="https://media.yourdomain.com/upload.php"></label>' +
+          '<label class="field"><span>Upload key</span><input type="password" id="setSrvKey" value="' + esc(cfg.serverKey || '') + '" placeholder="The UPLOAD_KEY from upload.php"></label>' +
+          '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn btn--light" data-act="test-server">Save &amp; test connection</button></div>' +
+          '<p class="hint" id="srvStatus">' + (cfg.serverBase ? 'Connected. Files go to <b>' + esc(cfg.serverBase) + '</b>' : 'Not tested yet.') + '</p>' +
+          '<p class="hint"><b>Optional (for “Pick a frame” on server videos):</b> in CyberPanel › Websites › your media site › vHost Conf, add a context for <code>/uploads/</code> with <code>extraHeaders Access-Control-Allow-Origin *</code>. Uploading works without it.</p>'
+        : '<label class="field"><span>Cloud name</span><input type="text" id="setCloud" value="' + esc(cfg.cloud || '') + '"></label>' +
+          '<label class="field"><span>Unsigned upload preset</span><input type="text" id="setPreset" value="' + esc(cfg.preset || '') + '"></label>' +
+          '<p class="hint">Cloudinary › Settings › Upload › Upload presets › Add › Signing mode <b>Unsigned</b>, folder <b>portfolio</b>.</p>' +
+          '<button type="button" class="btn btn--light" data-act="save-cloud" style="align-self:flex-start">Save</button>') + '</section>' +
       '<section class="card"><h2>GitHub</h2><p class="hint">Repository <b>' + esc(cfg.repo) + '</b> · branch <b>' + esc(cfg.branch) + '</b></p>' +
       '<div style="display:flex;gap:10px;flex-wrap:wrap"><button type="button" class="btn" data-act="reload">Reload from GitHub</button><button type="button" class="btn btn--danger" data-act="signout">Sign out on this device</button></div></section>' +
       '<section class="card"><h2>Backup</h2><p class="hint">Download everything (text, links, order, settings) as one file, or bring a backup back.</p>' +
@@ -863,7 +1007,10 @@
     }
   }
   function addVideoFiles(files) {
-    if (!cloudReady()) { return; }
+    if (!mediaReady()) { return; }
+    if (storage() === 'server' && files.some(function (f) { return !/\.(mp4|m4v|webm)$/i.test(f.name); })) {
+      toast('Heads up: MOV files often don’t play in Chrome on Windows. Export as MP4 (H.264) for best results.', null, 7000);
+    }
     var cat = /^(all|film|hidden)$/.test(S.videoFilter) ? null : S.videoFilter;
     files.forEach(function (f) {
       enqueue(f, 'video', function (r) {
@@ -871,7 +1018,7 @@
         if (cat) { v.cat = cat; }
         S.draft.videos.unshift(v);
         changed(true);
-        if (r.format !== 'mp4') { toast('“' + esc(v.title) + '” was converted to MP4. It can take a minute before it plays.', null, 6000); }
+        if (r.format !== 'mp4' && storage() !== 'server') { toast('“' + esc(v.title) + '” was converted to MP4. It can take a minute before it plays.', null, 6000); }
       });
     });
   }
@@ -909,7 +1056,7 @@
     if (d.vedit) { return editVideo(Number(d.vedit)); }
     if (d.vdel) {
       var vv = c.videos[d.vdel];
-      return confirmBox('Delete “' + esc(vv.title) + '” from your portfolio? (The file stays in your Cloudinary account.)', 'Delete', true).then(function (ok) { if (ok) { c.videos.splice(Number(d.vdel), 1); changed(true); } });
+      return confirmBox('Delete “' + esc(vv.title) + '” from your portfolio?' + (storage() === 'server' ? ' The file is removed from your server when you publish.' : ' (The file stays in your Cloudinary account.)'), 'Delete', true).then(function (ok) { if (ok) { c.videos.splice(Number(d.vdel), 1); changed(true); } });
     }
     if (d.dhide) { var dd = c.designs[d.dhide]; dd.hidden = !dd.hidden; return changed(true); }
     if (d.dedit) { return editDesign(Number(d.dedit)); }
@@ -922,20 +1069,21 @@
     if (d.tooledit) { return editTool(Number(d.tooledit)); }
     if (d.skilldel) { c.roles[S.role].skills.splice(Number(d.skilldel), 1); return changed(true); }
     if (d.linkdel) { c.site.links.splice(Number(d.linkdel), 1); return changed(true); }
+    if (d.storage) { cfg.storage = d.storage; writeJSON(CFG_KEY, cfg); return render(); }
     if (d.set) { setPath(c, d.set, JSON.parse(d.val)); return changed(true); }
     if (d.imgup) {
-      if (!cloudReady()) { return; }
+      if (!mediaReady()) { return; }
       return pickFiles('image/*').then(function (files) {
         if (!files[0]) { return; }
         t.innerHTML = '<span class="spin"></span> Uploading…';
-        cloudUpload(files[0], 'image', function () {}).then(function (r) { setPath(c, d.imgup, r.secure_url); changed(true); })
+        mediaUpload(files[0], 'image', function () {}).then(function (r) { setPath(c, d.imgup, r.secure_url); changed(true); })
           .catch(function (er) { toast(esc(friendlyUploadError(er.message, 'image')), 'error'); render(); });
       });
     }
     if (d.imgclear) { setPath(c, d.imgclear, ''); return changed(true); }
     switch (d.act) {
-      case 'pick-videos': if (cloudReady()) { pickFiles('video/*', true).then(addVideoFiles); } break;
-      case 'pick-designs': if (cloudReady()) { pickFiles('image/*', true).then(addDesignFiles); } break;
+      case 'pick-videos': if (mediaReady()) { pickFiles('video/*', true).then(addVideoFiles); } break;
+      case 'pick-designs': if (mediaReady()) { pickFiles('image/*', true).then(addDesignFiles); } break;
       case 'add-link': addLink(); break;
       case 'video-cats': editCats('videoCats', 'Video categories'); break;
       case 'design-cats': editCats('designCats', 'Design categories'); break;
@@ -943,6 +1091,13 @@
       case 'tool-add': editTool(null); break;
       case 'link-add': c.site.links.push({ type: 'instagram', label: 'Instagram', url: '', showInAbout: false }); changed(true); break;
       case 'full-preview': window.open('../index.html?preview=1&role=' + S.role, '_blank'); break;
+      case 'test-server':
+        cfg.serverUrl = $('#setSrvUrl').value.trim(); cfg.serverKey = $('#setSrvKey').value.trim(); cfg.storage = 'server';
+        writeJSON(CFG_KEY, cfg);
+        $('#srvStatus').innerHTML = '<span class="spin" style="display:inline-block;vertical-align:middle"></span> Testing…';
+        testServer().then(function () { render(); toast('Connected to your server. You can upload now.'); })
+          .catch(function (er) { $('#srvStatus').innerHTML = '<span style="color:var(--red)">' + esc(er.message) + '</span>'; });
+        break;
       case 'save-cloud':
         cfg.cloud = $('#setCloud').value.trim(); cfg.preset = $('#setPreset').value.trim(); writeJSON(CFG_KEY, cfg);
         toast('Saved. You can upload now.'); break;
@@ -994,24 +1149,49 @@
     if (cfg.repo) { $('#sRepo').value = cfg.repo; }
     if (cfg.branch) { $('#sBranch').value = cfg.branch; }
     if (cfg.cloud) { $('#sCloud').value = cfg.cloud; }
+    if (cfg.serverUrl) { $('#sSrvUrl').value = cfg.serverUrl; }
+    if (cfg.storage === 'cloudinary') { $('input[name="sStore"][value="cloudinary"]').checked = true; syncStore(); }
     if (cfg.preset) { $('#sPreset').value = cfg.preset; }
     var e = $('#setupErr'); e.hidden = !err; e.textContent = err || '';
   }
+  function syncStore() {
+    var v = $('input[name="sStore"]:checked').value;
+    $('#sServerBox').hidden = v !== 'server';
+    $('#sCloudBox').hidden = v !== 'cloudinary';
+  }
+  $$('input[name="sStore"]').forEach(function (r) { r.addEventListener('change', syncStore); });
   $('#setupForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    var next = { token: $('#sToken').value.trim(), repo: $('#sRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, ''), branch: $('#sBranch').value.trim() || 'main', cloud: $('#sCloud').value.trim(), preset: $('#sPreset').value.trim() };
+    var store = $('input[name="sStore"]:checked').value;
+    var next = { token: $('#sToken').value.trim(), repo: $('#sRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$/, ''), branch: $('#sBranch').value.trim() || 'main',
+      storage: store, serverUrl: $('#sSrvUrl').value.trim(), serverKey: $('#sSrvKey').value.trim(), cloud: $('#sCloud').value.trim(), preset: $('#sPreset').value.trim() };
     var btn = $('#setupBtn'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Checking…';
     var prev = cfg; cfg = next;
     gh('').then(function (repo) {
       if (repo.permissions && !repo.permissions.push) { throw new Error('This key can read but not save. Give it Contents: Read and write.'); }
       writeJSON(CFG_KEY, cfg);
-      startApp();
+      if (cfg.storage === 'server' && cfg.serverUrl && cfg.serverKey) {
+        return testServer().catch(function (er) { toast('Signed in, but your upload server didn’t answer: ' + esc(er.message) + ' Fix it in Settings.', 'error', 10000); });
+      }
+    }).then(function () {
+      if (cfg.token === next.token) { startApp(); }
     }).catch(function (er) {
       cfg = prev;
       showSetup(er.status === 401 ? 'That GitHub key was not accepted. Copy it again (it starts with github_pat_).' : er.status === 404 ? 'Repository not found, or the key has no access to it. Check the name and the key’s repository access.' : er.message);
     }).then(function () { btn.disabled = false; btn.textContent = 'Open dashboard'; });
   });
 
+  function testServer() {
+    if (!/^https?:\/\//.test(cfg.serverUrl || '')) { return Promise.reject(new Error('Enter the full address, starting with https://')); }
+    return serverCall('ping').then(function (j) {
+      cfg.serverChunk = j.chunk; cfg.serverBase = j.base;
+      writeJSON(CFG_KEY, cfg);
+      return j;
+    }).catch(function (e) {
+      if (/Failed to fetch|NetworkError|Load failed/i.test(e.message)) { throw new Error('Could not reach the server. Check the address, that the site has SSL (https), and that this dashboard’s address is in ALLOWED_ORIGINS in upload.php.'); }
+      throw e;
+    });
+  }
   function loadContent() {
     $('#main').innerHTML = '<div class="empty"><span class="spin" style="display:inline-block"></span> Loading your portfolio…</div>';
     return getFile('content.json').then(function (f) {

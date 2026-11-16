@@ -9,9 +9,10 @@ Everything is edited there: videos, designs, experience cards, tools, all text, 
 Press **Publish** and the site updates in about a minute.
 
 - Text, order and settings are saved to `content.json` in this repo.
-- New videos and images are stored on Cloudinary (free plan: 100 MB per video, 10 MB per image).
+- New videos and images go to **your own server** (CyberPanel, see `server-upload/SERVER-SETUP.md`)
+  or to Cloudinary. You choose in the dashboard's Settings.
 - Each device needs a one-time setup: a GitHub fine-grained key (Contents: read and write, this repo only)
-  and the Cloudinary cloud name + unsigned upload preset. Keys stay in that browser only.
+  and the upload details (server address + key, or Cloudinary). Keys stay in that browser only.
 
 ## Files
 
@@ -19,6 +20,7 @@ Press **Publish** and the site updates in about a minute.
 - `content.json`: all content. The dashboard writes it, so there's no need to edit it by hand.
 - `admin/`: the dashboard.
 - `tool-icons.js`: built-in tool logos used by the site and the dashboard.
+- `server-upload/`: `upload.php` for your CyberPanel server and its setup guide. Kept out of git so your key is never published.
 - `sw.js`: service worker. It never caches pages, `content.json`, the dashboard or videos.
 
 ## View it locally

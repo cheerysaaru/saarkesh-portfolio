@@ -70,6 +70,13 @@
   .steps { margin: 0; padding-left: 20px; color: var(--muted); line-height: 1.6; font-size: 14px; }
   .steps b { color: var(--fg); }
   .err { color: var(--red); font-size: 14px; margin: 0; }
+  .store-pick { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .store-opt { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 14px; border: 1px solid var(--line2); cursor: pointer; }
+  .store-opt:has(input:checked) { border-color: var(--green); background: rgba(55,214,122,0.07); }
+  .store-opt input { accent-color: var(--green); width: 18px; height: 18px; margin: 2px 0 0; }
+  .store-opt b { display: block; font-size: 15px; }
+  .store-opt small { color: var(--muted); font-size: 13px; }
+  code { font-size: 12px; background: var(--bg); padding: 1px 5px; border-radius: 5px; }
 
   /* ---------- app shell ---------- */
   .app { display: flex; flex-wrap: wrap; min-height: 100vh; }
@@ -218,15 +225,29 @@
       </div>
     </section>
     <section class="card">
-      <h2>2 · Cloudinary (stores videos &amp; images)</h2>
-      <ol class="steps">
-        <li>Make a free account at <a href="https://cloudinary.com/users/register_free" target="_blank" rel="noopener noreferrer">cloudinary.com</a>.</li>
-        <li>Copy your <b>Cloud name</b> from the dashboard home.</li>
-        <li>Settings › Upload › <b>Add upload preset</b> › Signing mode: <b>Unsigned</b> › Folder: <b>portfolio</b> › Save. Copy the preset name.</li>
-      </ol>
-      <div class="row2">
-        <label class="field"><span>Cloud name</span><input type="text" id="sCloud" placeholder="e.g. dxyz123"></label>
-        <label class="field"><span>Upload preset</span><input type="text" id="sPreset" placeholder="e.g. portfolio_unsigned"></label>
+      <h2>2 · Where to store videos &amp; images</h2>
+      <div class="store-pick">
+        <label class="store-opt"><input type="radio" name="sStore" value="server" checked><span><b>My server (CyberPanel)</b><small>Uses the upload.php file on your hosting</small></span></label>
+        <label class="store-opt"><input type="radio" name="sStore" value="cloudinary"><span><b>Cloudinary</b><small>Free cloud account</small></span></label>
+      </div>
+      <div id="sServerBox" style="display:flex;flex-direction:column;gap:14px">
+        <ol class="steps">
+          <li>Put <b>upload.php</b> on your CyberPanel site and set <b>UPLOAD_KEY</b> inside it (see SERVER-SETUP.md).</li>
+          <li>Paste its address and the same key here.</li>
+        </ol>
+        <label class="field"><span>Upload address</span><input type="url" id="sSrvUrl" placeholder="https://media.yourdomain.com/upload.php"></label>
+        <label class="field"><span>Upload key</span><input type="password" id="sSrvKey" placeholder="The UPLOAD_KEY from upload.php"></label>
+      </div>
+      <div id="sCloudBox" style="display:flex;flex-direction:column;gap:14px" hidden>
+        <ol class="steps">
+          <li>Make a free account at <a href="https://cloudinary.com/users/register_free" target="_blank" rel="noopener noreferrer">cloudinary.com</a>.</li>
+          <li>Copy your <b>Cloud name</b> from the dashboard home.</li>
+          <li>Settings › Upload › <b>Add upload preset</b> › Signing mode: <b>Unsigned</b> › Folder: <b>portfolio</b> › Save. Copy the preset name.</li>
+        </ol>
+        <div class="row2">
+          <label class="field"><span>Cloud name</span><input type="text" id="sCloud" placeholder="e.g. dxyz123"></label>
+          <label class="field"><span>Upload preset</span><input type="text" id="sPreset" placeholder="e.g. portfolio_unsigned"></label>
+        </div>
       </div>
       <p class="hint">You can skip this and add it later in Settings. Text and layout editing work without it.</p>
     </section>
