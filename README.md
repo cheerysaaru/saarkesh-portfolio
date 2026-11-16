@@ -1,38 +1,30 @@
-# Saarkesh — Video Editor Portfolio
+# Saarkesh — Portfolio
 
-Single-page portfolio site for **Saarkesh**, a video editor based in Colombo, Sri Lanka.
+Single-page portfolio for **Saarkesh**, video editor and graphic designer in Colombo.
 
-Dark mode by default (with a remembered light/dark toggle), huge Inter Tight typography,
-a Behance-style grid of vertical reels, and a video popup that plays local files or
-YouTube / Vimeo / Instagram links.
+## Editing the site
 
-## View it
+Go to **`/admin`** on the live site (for example `https://saarkcreates.site/admin/`) and sign in.
+Everything is edited there: videos, designs, experience cards, tools, all text, links, and layout.
+Press **Publish** and the site updates in about a minute.
 
-Open `index.html` directly in a browser, or serve the folder:
+- Text, order and settings are saved to `content.json` in this repo.
+- New videos and images are stored on Cloudinary (free plan: 100 MB per video, 10 MB per image).
+- Each device needs a one-time setup: a GitHub fine-grained key (Contents: read and write, this repo only)
+  and the Cloudinary cloud name + unsigned upload preset. Keys stay in that browser only.
+
+## Files
+
+- `index.html`: the site. It reads `content.json` when it loads; the copy inside it is only a fallback.
+- `content.json`: all content. The dashboard writes it, so there's no need to edit it by hand.
+- `admin/`: the dashboard.
+- `tool-icons.js`: built-in tool logos used by the site and the dashboard.
+- `sw.js`: service worker. It never caches pages, `content.json`, the dashboard or videos.
+
+## View it locally
 
 ```bash
 python -m http.server 8000
 ```
 
-## Structure
-
-- `index.html` — the entire site (HTML + CSS + JS in one file, no build step)
-- `portfolio-videos/` — video files, tracked with **Git LFS**
-- `portfolio-videos/posters/` — thumbnail frames extracted from each video
-
-## Editing the work grid
-
-Every tile is one line in the `VIDEOS` array near the bottom of `index.html`:
-
-```js
-{ kind: 'reel', cat: 'social', title: 'My reel', duration: '0:30',
-  url: 'portfolio-videos/my-reel.mp4', thumb: 'portfolio-videos/posters/my-reel.jpg' }
-```
-
-- `kind`: `reel` (9:16 tile) or `film` (16:9 tile)
-- `cat`: `social`, `wedding`, or `motion` (used by the filter buttons)
-- `url`: a local file or a YouTube / Vimeo / Instagram link
-
-## Stack
-
-Vanilla HTML/CSS/JS — Inter Tight from Google Fonts, no frameworks, no dependencies.
+Then open http://localhost:8000. Opening `index.html` by double-click also works, using the built-in copy of the content.

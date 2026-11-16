@@ -1,8 +1,6 @@
-var CACHE_NAME = 'saarkesh-portfolio-v2';
+var CACHE_NAME = 'saarkesh-portfolio-v3';
 var ASSETS_TO_CACHE = [
-  './',
-  'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap',
-  'images/portrait.jpg'
+  'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap'
 ];
 
 self.addEventListener('install', function (event) {
@@ -14,28 +12,32 @@ self.addEventListener('install', function (event) {
 
 self.addEventListener('fetch', function (event) {
   var req = event.request;
+  if (req.method !== 'GET') { return; }
+  var url = new URL(req.url);
 
-  /* Never cache or serve the HTML page from the cache.
-     Navigation requests must always hit the network, otherwise the SW
-     returns a stale copy of index.html and newly-referenced images
-     (e.g. the design gallery) never load after a deploy/pull. */
-  if (req.mode === 'navigate') {
-    event.respondWith(fetch(req));
+  /* Let the browser handle these directly, never from cache:
+     - pages (so new versions show right away)
+     - content.json and the dashboard (so edits show right away)
+     - videos and any range request (cached copies break seeking/playback)
+     - Cloudinary / GitHub (they have their own caching) */
+  if (req.mode === 'navigate' ||
+      /\/content\.json$/.test(url.pathname) ||
+      /\/admin(\/|$)/.test(url.pathname) ||
+      req.headers.has('range') ||
+      /\.(mp4|webm|mov|m4v)$/i.test(url.pathname) ||
+      /cloudinary\.com|github\.com|githubusercontent\.com/.test(url.hostname)) {
     return;
   }
 
+  /* Static assets (images, fonts, scripts): cache first, fill on the way. */
   event.respondWith(
     caches.match(req).then(function (cached) {
       if (cached) { return cached; }
       return fetch(req).then(function (response) {
-        /* Only cache successful, same-origin, basic responses (static assets). */
-        if (!response || response.status !== 200 || response.type !== 'basic') {
-          return response;
+        if (response && response.status === 200 && (response.type === 'basic' || url.hostname.indexOf('fonts.') !== -1)) {
+          var copy = response.clone();
+          caches.open(CACHE_NAME).then(function (cache) { cache.put(req, copy); });
         }
-        var responseToCache = response.clone();
-        caches.open(CACHE_NAME).then(function (cache) {
-          cache.put(req, responseToCache);
-        });
         return response;
       });
     })
@@ -44,12 +46,8 @@ self.addEventListener('fetch', function (event) {
 
 self.addEventListener('activate', function (event) {
   event.waitUntil(
-    caches.keys().then(function (cacheNames) {
-      return Promise.all(
-        cacheNames.filter(function (name) { return name !== CACHE_NAME; }).map(function (name) {
-          return caches.delete(name);
-        })
-      );
+    caches.keys().then(function (names) {
+      return Promise.all(names.filter(function (n) { return n !== CACHE_NAME; }).map(function (n) { return caches.delete(n); }));
     })
   );
   self.clients.claim();

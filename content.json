@@ -1,0 +1,536 @@
+{
+  "version": 1,
+  "site": {
+    "name": "Saarkesh",
+    "logo": "S.",
+    "available": true,
+    "availableText": "Available for freelance work",
+    "hireText": "Hire me",
+    "hireLink": "#contact",
+    "email": "cheerysaark@gmail.com",
+    "location": "Colombo, Sri Lanka",
+    "portrait": "images/portrait.jpg",
+    "portraitAlt": "Saarkesh, video editor and graphic designer based in Colombo",
+    "greeting": "Hey, I'm Saarkesh.",
+    "shareImage": "",
+    "links": [
+      {
+        "type": "instagram",
+        "label": "Instagram @4o4_erro",
+        "url": "https://instagram.com/4o4_erro",
+        "showInAbout": true
+      },
+      {
+        "type": "whatsapp",
+        "label": "+94 703771851",
+        "url": "https://wa.me/94703771851",
+        "showInAbout": false
+      }
+    ]
+  },
+  "roles": {
+    "video": {
+      "label": "Video Editor",
+      "seoTitle": "Saarkesh — Video Editor, Colombo",
+      "seoDesc": "Saarkesh — video editor based in Colombo. Reels & social edits, wedding films, YouTube edits and storytelling videos.",
+      "headline": "Video Editor Portfolio.",
+      "intro": "Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.",
+      "skills": [
+        "Reels",
+        "Beat-synced Edits",
+        "Sound Effects",
+        "Wedding Films",
+        "YouTube Edits",
+        "Storytelling"
+      ],
+      "bio": "I'm a video editor based in Colombo. Most of my work is reels and social media edits — cut tight to the audio, layered with sound effects, and finished with motion graphics that I'm honestly still leveling up on.\n\nI also edit wedding films and wedding reels, YouTube videos, and storytelling-style informative videos. I'm still learning, still improving, and I care a lot about pacing: making sure every second earns its place.\n\nIf your footage needs rhythm and structure, let's talk.",
+      "focus": "Reels, social media edits, motion graphics",
+      "contactLine": "Let's cut something great.",
+      "experienceLabel": "Experience",
+      "experienceHeading": "What I do.",
+      "experience": [
+        {
+          "title": "Reels & Social Edits",
+          "tag": "Main work",
+          "role": "Short-form editor",
+          "desc": "Beat-synced reels cut to the audio, layered with sound effects and intermediate motion graphics for Instagram and TikTok.",
+          "hidden": false
+        },
+        {
+          "title": "Wedding Films",
+          "tag": "Films",
+          "role": "Wedding film & reel editor",
+          "desc": "Full wedding film edits and highlight reels built around the emotion and pacing of the day, not just the best clips.",
+          "hidden": false
+        },
+        {
+          "title": "YouTube Edits",
+          "tag": "Long form",
+          "role": "Long-form editor",
+          "desc": "Clean, watchable YouTube edits — cuts, b-roll, captions and pacing that keep viewers to the end.",
+          "hidden": false
+        },
+        {
+          "title": "Storytelling Videos",
+          "tag": "Informative",
+          "role": "Story-style editor",
+          "desc": "Informative, story-driven videos where structure and narration carry the piece as much as the visuals.",
+          "hidden": false
+        }
+      ],
+      "workLabel": "Selected work",
+      "workHeading": "Reels & social.",
+      "filmsLabel": "Long form",
+      "filmsHeading": "Films & stories.",
+      "toolsLabel": "Toolkit",
+      "toolsHeading": "Tools I edit with.",
+      "tools": [
+        {
+          "name": "Premiere Pro",
+          "icon": "premiere-pro",
+          "hidden": false
+        },
+        {
+          "name": "After Effects",
+          "icon": "after-effects",
+          "hidden": false
+        },
+        {
+          "name": "DaVinci Resolve",
+          "icon": "davinci-resolve",
+          "hidden": false
+        },
+        {
+          "name": "Photoshop",
+          "icon": "photoshop",
+          "hidden": false
+        },
+        {
+          "name": "CapCut",
+          "icon": "capcut",
+          "hidden": false
+        },
+        {
+          "name": "Audition",
+          "icon": "audition",
+          "hidden": false
+        }
+      ]
+    },
+    "design": {
+      "label": "Graphic Designer",
+      "seoTitle": "Saarkesh — Graphic Designer, Colombo",
+      "seoDesc": "Saarkesh — graphic designer based in Colombo. Social media graphics, posters, logos and branding.",
+      "headline": "Graphic Design Portfolio.",
+      "intro": "Posters that stop the scroll, logos with a point of view, and social graphics that make a brand feel real — designed in Colombo by Saarkesh.",
+      "skills": [
+        "Social Graphics",
+        "Posters",
+        "Logo Design",
+        "Branding",
+        "Thumbnails",
+        "Layouts"
+      ],
+      "bio": "I'm also a graphic designer based in Colombo. I design social media graphics, posters, logos and brand visuals — clean layouts, strong type, and ideas that read at a glance.\n\nComing from video editing, I think a lot about rhythm and hierarchy: where the eye lands first and what it does next. I'm still learning, still improving, and I care about making every element earn its place.\n\nIf your brand needs a look that sticks, let's talk.",
+      "focus": "Social graphics, posters, logos, branding",
+      "contactLine": "Let's make something great.",
+      "experienceLabel": "Experience",
+      "experienceHeading": "What I design.",
+      "experience": [
+        {
+          "title": "Social Media Graphics",
+          "tag": "Main work",
+          "role": "Social content designer",
+          "desc": "Post, carousel and story designs that keep a brand looking consistent and easy to recognise across Instagram and beyond.",
+          "hidden": false
+        },
+        {
+          "title": "Posters & Flyers",
+          "tag": "Print + digital",
+          "role": "Poster designer",
+          "desc": "Event and promo posters with clear hierarchy, bold type and a layout that gets the message across in a glance.",
+          "hidden": false
+        },
+        {
+          "title": "Logo & Branding",
+          "tag": "Identity",
+          "role": "Brand designer",
+          "desc": "Logos and simple brand systems — colours, type and usage — so a small brand looks put together from day one.",
+          "hidden": false
+        },
+        {
+          "title": "Thumbnails & Banners",
+          "tag": "Digital",
+          "role": "Thumbnail & banner designer",
+          "desc": "YouTube thumbnails, covers and banners designed to be clicked, and to match the video they belong to.",
+          "hidden": false
+        }
+      ],
+      "workLabel": "Selected work",
+      "workHeading": "Design work.",
+      "brandLabel": "Case studies",
+      "brandHeading": "Branding.",
+      "toolsLabel": "Toolkit",
+      "toolsHeading": "Tools I design with.",
+      "tools": [
+        {
+          "name": "Photoshop",
+          "icon": "photoshop",
+          "hidden": false
+        },
+        {
+          "name": "Illustrator",
+          "icon": "pen",
+          "hidden": false
+        },
+        {
+          "name": "Figma",
+          "icon": "pen",
+          "hidden": false
+        },
+        {
+          "name": "Canva",
+          "icon": "pen",
+          "hidden": false
+        }
+      ]
+    }
+  },
+  "videoCats": [
+    {
+      "id": "social",
+      "label": "Social"
+    },
+    {
+      "id": "wedding",
+      "label": "Wedding"
+    },
+    {
+      "id": "motion",
+      "label": "Motion"
+    }
+  ],
+  "designCats": [
+    {
+      "id": "social",
+      "label": "Social"
+    },
+    {
+      "id": "posters",
+      "label": "Posters"
+    },
+    {
+      "id": "logos",
+      "label": "Logos"
+    }
+  ],
+  "videos": [
+    {
+      "id": "v01",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Eko Lens: Portrait Reel",
+      "duration": "0:36",
+      "url": "portfolio-videos/eko-portrait-reel.mp4",
+      "thumb": "portfolio-videos/posters/eko-portrait-reel.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v02",
+      "kind": "reel",
+      "cat": "social",
+      "title": "STM: Study Abroad Promo",
+      "duration": "1:05",
+      "url": "portfolio-videos/stm-final-compressed.mp4",
+      "thumb": "portfolio-videos/posters/stm-final.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v03",
+      "kind": "reel",
+      "cat": "motion",
+      "title": "AI Restaurant Search: App Demo",
+      "duration": "0:19",
+      "url": "portfolio-videos/ai-search-demo.mp4",
+      "thumb": "portfolio-videos/posters/ai-search-demo.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v04",
+      "kind": "reel",
+      "cat": "motion",
+      "title": "Video 1022",
+      "duration": "0:21",
+      "url": "portfolio-videos/1022.mp4",
+      "thumb": "portfolio-videos/posters/1022.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v05",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Doctor Intro: Join Me for This Game",
+      "duration": "1:20",
+      "url": "portfolio-videos/final-out.mp4",
+      "thumb": "portfolio-videos/posters/final-out.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v06",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Lifestyle Reel: Take 01",
+      "duration": "0:35",
+      "url": "portfolio-videos/reel-take-01.mp4",
+      "thumb": "portfolio-videos/posters/reel-take-01.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v07",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Colour-Graded Lifestyle Reel",
+      "duration": "1:01",
+      "url": "portfolio-videos/reel-take-02.mp4",
+      "thumb": "portfolio-videos/posters/reel-take-02.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v08",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Creator Talking Reel: Captioned Edit",
+      "duration": "0:38",
+      "url": "portfolio-videos/reel-take-03.mp4",
+      "thumb": "portfolio-videos/posters/reel-take-03.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v09",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Kitchen Lifestyle Reel",
+      "duration": "1:19",
+      "url": "portfolio-videos/reel-take-04.mp4",
+      "thumb": "portfolio-videos/posters/reel-take-04.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v10",
+      "kind": "reel",
+      "cat": "social",
+      "title": "NMX: Lactose Myth Explainer",
+      "duration": "0:51",
+      "url": "portfolio-videos/reel-take-05.mp4",
+      "thumb": "portfolio-videos/posters/reel-take-05.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v11",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Memories: Cinematic Edit",
+      "duration": "0:40",
+      "url": "portfolio-videos/memories-reel.mp4",
+      "thumb": "portfolio-videos/posters/memories-reel.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v12",
+      "kind": "reel",
+      "cat": "social",
+      "title": "NMX: Creatine Q&A with Dr Dumindu",
+      "duration": "0:41",
+      "url": "portfolio-videos/creatine-qa.mp4",
+      "thumb": "portfolio-videos/posters/creatine-qa.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v13",
+      "kind": "reel",
+      "cat": "social",
+      "title": "Lifestyle Reel 1105",
+      "duration": "0:53",
+      "url": "portfolio-videos/1105.mp4",
+      "thumb": "portfolio-videos/posters/1105.jpg",
+      "hidden": false
+    },
+    {
+      "id": "v14",
+      "kind": "film",
+      "cat": "social",
+      "title": "Interact Club — officials board 2023/24",
+      "duration": "4:55",
+      "url": "portfolio-videos/interact-board-2023-24-compressed.mp4",
+      "thumb": "portfolio-videos/posters/interact-board-2023-24.jpg",
+      "hidden": false
+    }
+  ],
+  "designs": [
+    {
+      "id": "d01",
+      "kind": "work",
+      "cat": "social",
+      "title": "Social Post 01",
+      "label": "Social",
+      "thumb": "images/design/social/social-01.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d02",
+      "kind": "work",
+      "cat": "social",
+      "title": "Social Post 02",
+      "label": "Social",
+      "thumb": "images/design/social/social-02.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d03",
+      "kind": "work",
+      "cat": "social",
+      "title": "Social Post 03",
+      "label": "Social",
+      "thumb": "images/design/social/social-03.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d04",
+      "kind": "work",
+      "cat": "posters",
+      "title": "Poster 01",
+      "label": "Poster",
+      "thumb": "images/design/posters/poster-01.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d05",
+      "kind": "work",
+      "cat": "posters",
+      "title": "Poster 02",
+      "label": "Poster",
+      "thumb": "images/design/posters/poster-02.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d06",
+      "kind": "work",
+      "cat": "posters",
+      "title": "Poster 03",
+      "label": "Poster",
+      "thumb": "images/design/posters/poster-03.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d07",
+      "kind": "work",
+      "cat": "logos",
+      "title": "Logo 01",
+      "label": "Logo",
+      "thumb": "images/design/logos/logo-01.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d08",
+      "kind": "work",
+      "cat": "logos",
+      "title": "Logo 02",
+      "label": "Logo",
+      "thumb": "images/design/logos/logo-02.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d09",
+      "kind": "brand",
+      "cat": "branding",
+      "title": "Brand Identity 01",
+      "label": "Branding",
+      "thumb": "images/design/branding/branding-01.png",
+      "caption": "",
+      "hidden": false
+    },
+    {
+      "id": "d10",
+      "kind": "brand",
+      "cat": "branding",
+      "title": "Brand Identity 02",
+      "label": "Branding",
+      "thumb": "images/design/branding/branding-02.png",
+      "caption": "",
+      "hidden": false
+    }
+  ],
+  "layout": {
+    "accent": "#37d67a",
+    "headingFont": "Inter Tight",
+    "defaultTheme": "dark",
+    "radius": 18,
+    "reelCols": 4,
+    "designCols": 3,
+    "reelStyle": "grid",
+    "designStyle": "grid",
+    "hoverPreview": true,
+    "sections": {
+      "video": [
+        {
+          "id": "about",
+          "show": true
+        },
+        {
+          "id": "experience",
+          "show": true
+        },
+        {
+          "id": "reels",
+          "show": true
+        },
+        {
+          "id": "films",
+          "show": true
+        },
+        {
+          "id": "tools",
+          "show": true
+        },
+        {
+          "id": "contact",
+          "show": true
+        }
+      ],
+      "design": [
+        {
+          "id": "about",
+          "show": true
+        },
+        {
+          "id": "experience-design",
+          "show": true
+        },
+        {
+          "id": "work",
+          "show": true
+        },
+        {
+          "id": "branding",
+          "show": true
+        },
+        {
+          "id": "tools-design",
+          "show": true
+        },
+        {
+          "id": "contact",
+          "show": true
+        }
+      ]
+    }
+  }
+}

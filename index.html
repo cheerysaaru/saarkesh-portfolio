@@ -4,12 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark light">
+<!--SEO-START-->
 <title>Saarkesh — Video Editor, Colombo</title>
 <meta name="description" content="Saarkesh — video editor based in Colombo. Reels &amp; social edits, wedding films, YouTube edits and storytelling videos.">
+<meta property="og:title" content="Saarkesh — Video Editor, Colombo">
+<meta property="og:description" content="Saarkesh — video editor based in Colombo. Reels &amp; social edits, wedding films, YouTube edits and storytelling videos.">
+<meta property="og:type" content="website">
+<!--SEO-END-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script>
+  /* Hide the page until content.json has been applied (max 3s), so old text never flashes */
+  document.documentElement.classList.add('c-loading');
+  setTimeout(function () { document.documentElement.classList.remove('c-loading'); }, 3000);
   /* Set theme before first paint so there is no flash */
   try { var t = localStorage.getItem('theme'); if (t === 'light' || t === 'dark') { document.documentElement.dataset.theme = t; } } catch (e) {}
   /* Pick the portfolio role before first paint: ?role=design  |  #design  |  last choice  |  video */
@@ -670,7 +678,36 @@
     .reveal { opacity: 1; transform: none; }
     .marquee-track { animation: none; }
   }
+
+  /* ============ CONTENT-DRIVEN ADDITIONS ============ */
+  html.c-loading .nav, html.c-loading main, html.c-loading footer { visibility: hidden; }
+  .c-off { display: none !important; }
+  .tool-icon { object-fit: contain; }
+  img.tool-icon { border-radius: 4px; }
+  .hover-vid {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .grid-reels.is-carousel {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - (var(--reel-cols, 4) - 1) * 16px) / var(--reel-cols, 4));
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+  }
+  .grid-reels.is-carousel .tile { scroll-snap-align: start; }
+  @media (max-width: 1024px) { .grid-reels.is-carousel { grid-auto-columns: 40%; } }
+  @media (max-width: 600px) { .grid-reels.is-carousel { grid-auto-columns: 70%; } }
+  .grid-designs.is-masonry { display: block; columns: var(--design-cols, 3); column-gap: 16px; }
+  .grid-designs.is-masonry .tile { break-inside: avoid; margin-bottom: 16px; }
+  .grid-designs.is-masonry .tile-btn { aspect-ratio: auto; }
+  .grid-designs.is-masonry .tile-btn img { position: static; height: auto; display: block; }
+  @media (max-width: 700px) { .grid-designs.is-masonry { columns: 2; column-gap: 12px; } }
 </style>
+<style id="layoutStyle"></style>
 </head>
 <body>
 
@@ -681,7 +718,7 @@
 <header class="nav">
   <div class="wrap nav-inner">
     <div class="nav-left">
-      <a class="logo" href="#top" aria-label="Saarkesh — back to top">S.</a>
+      <a class="logo" href="#top" aria-label="Saarkesh — back to top" data-c="site.logo">S.</a>
       <div class="role-switch" role="group" aria-label="Choose portfolio">
         <button type="button" data-role-btn="video" aria-pressed="true"><span class="full">Video Editor</span><span class="short">Video</span></button>
         <button type="button" data-role-btn="design" aria-pressed="false"><span class="full">Graphic Designer</span><span class="short">Design</span></button>
@@ -703,7 +740,7 @@
         <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
       </button>
-      <a class="pill pill--solid" href="#contact">Hire me</a>
+      <a class="pill pill--solid" href="#contact" id="cHire">Hire me</a>
     </div>
   </div>
 </header>
@@ -713,15 +750,15 @@
   <!-- ============ HERO ============ -->
   <section class="hero" id="top">
     <div class="wrap">
-      <p class="badge"><span class="dot" aria-hidden="true"></span> Available for freelance work</p>
-      <h1 class="display" id="heroTitle"><span data-show="video">Video Editor Portfolio.</span><span data-show="design">Graphic Design Portfolio.</span></h1>
-      <p class="hero-sub"><span data-show="video">Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.</span><span data-show="design">Posters that stop the scroll, logos with a point of view, and social graphics that make a brand feel real — designed in Colombo by Saarkesh.</span></p>
+      <p class="badge" id="cBadge"><span class="dot" aria-hidden="true"></span> <span data-c="site.availableText">Available for freelance work</span></p>
+      <h1 class="display" id="heroTitle"><span data-show="video" data-c="roles.video.headline">Video Editor Portfolio.</span><span data-show="design" data-c="roles.design.headline">Graphic Design Portfolio.</span></h1>
+      <p class="hero-sub"><span data-show="video" data-c="roles.video.intro">Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.</span><span data-show="design" data-c="roles.design.intro">Posters that stop the scroll, logos with a point of view, and social graphics that make a brand feel real — designed in Colombo by Saarkesh.</span></p>
     </div>
   </section>
 
   <!-- ============ MARQUEE ============ -->
   <div class="marquee" aria-hidden="true" data-show="video">
-    <div class="marquee-track" id="marqueeTrack">
+    <div class="marquee-track" id="mqVideo">
       <span>Reels</span><span class="sep">/</span>
       <span>Beat-synced Edits</span><span class="sep">/</span>
       <span>Sound Effects</span><span class="sep">/</span>
@@ -731,7 +768,7 @@
     </div>
   </div>
   <div class="marquee" aria-hidden="true" data-show="design">
-    <div class="marquee-track">
+    <div class="marquee-track" id="mqDesign">
       <span>Social Graphics</span><span class="sep">/</span>
       <span>Posters</span><span class="sep">/</span>
       <span>Logo Design</span><span class="sep">/</span>
@@ -747,22 +784,22 @@
       <p class="label reveal">About</p>
       <div class="about-grid">
         <div class="portrait reveal">
-          <img src="images/portrait.jpg" alt="Saarkesh, video editor and graphic designer based in Colombo"
+          <img id="cPortrait" src="images/portrait.jpg" alt="Saarkesh, video editor and graphic designer based in Colombo"
                width="900" height="1600" loading="lazy" decoding="async">
         </div>
         <div class="bio reveal" style="--i:1">
-          <h2 class="display" style="font-size: clamp(2rem, 4.5vw, 3.5rem); margin-bottom: 24px;">Hey, I'm Saarkesh.</h2>
-          <div data-show="video">
+          <h2 class="display" style="font-size: clamp(2rem, 4.5vw, 3.5rem); margin-bottom: 24px;" data-c="site.greeting">Hey, I'm Saarkesh.</h2>
+          <div data-show="video" id="cBioVideo">
             <p>I'm a video editor based in Colombo. Most of my work is reels and social media edits — cut tight to the audio, layered with sound effects, and finished with motion graphics that I'm honestly still leveling up on.</p>
             <p>I also edit wedding films and wedding reels, YouTube videos, and storytelling-style informative videos. I'm still learning, still improving, and I care a lot about pacing: making sure every second earns its place.</p>
             <p>If your footage needs rhythm and structure, let's talk.</p>
           </div>
-          <div data-show="design">
+          <div data-show="design" id="cBioDesign">
             <p>I'm also a graphic designer based in Colombo. I design social media graphics, posters, logos and brand visuals — clean layouts, strong type, and ideas that read at a glance.</p>
             <p>Coming from video editing, I think a lot about rhythm and hierarchy: where the eye lands first and what it does next. I'm still learning, still improving, and I care about making every element earn its place.</p>
             <p>If your brand needs a look that sticks, let's talk.</p>
           </div>
-          <dl class="facts">
+          <dl class="facts" id="cFacts">
             <div class="row"><dt>Location</dt><dd>Colombo, Sri Lanka</dd></div>
             <div class="row"><dt>Focus</dt><dd><span data-show="video">Reels, social media edits, motion graphics</span><span data-show="design">Social graphics, posters, logos, branding</span></dd></div>
             <div class="row"><dt>Email</dt><dd><a href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a></dd></div>
@@ -778,10 +815,10 @@
   <section id="experience-design" data-show="design">
     <div class="wrap split">
       <div class="split-head reveal">
-        <p class="label">Experience</p>
-        <h2 class="display">What I design.</h2>
+        <p class="label" data-c="roles.design.experienceLabel">Experience</p>
+        <h2 class="display" data-c="roles.design.experienceHeading">What I design.</h2>
       </div>
-      <div>
+      <div id="cExpDesign">
         <article class="work-item reveal">
           <div class="work-top"><h3>Social Media Graphics</h3><span class="work-tag">Main work</span></div>
           <p class="work-role">Social content designer</p>
@@ -809,9 +846,9 @@
   <!-- ============ DESIGN: WORK ============ -->
   <section id="work" data-show="design">
     <div class="wrap">
-      <p class="label reveal">Selected work</p>
-      <h2 class="display reveal">Design work.</h2>
-      <div class="filters reveal" role="group" aria-label="Filter design work" data-grid="designGrid" data-empty="designEmpty">
+      <p class="label reveal" data-c="roles.design.workLabel">Selected work</p>
+      <h2 class="display reveal" data-c="roles.design.workHeading">Design work.</h2>
+      <div class="filters reveal" role="group" aria-label="Filter design work" data-grid="designGrid" data-empty="designEmpty" id="cDesignFilters">
         <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
         <button class="filter" type="button" data-filter="social" aria-pressed="false">Social</button>
         <button class="filter" type="button" data-filter="posters" aria-pressed="false">Posters</button>
@@ -825,8 +862,8 @@
   <!-- ============ DESIGN: BRANDING ============ -->
   <section id="branding" data-show="design">
     <div class="wrap">
-      <p class="label reveal">Case studies</p>
-      <h2 class="display reveal">Branding.</h2>
+      <p class="label reveal" data-c="roles.design.brandLabel">Case studies</p>
+      <h2 class="display reveal" data-c="roles.design.brandHeading">Branding.</h2>
       <div class="grid-films" id="brandGrid" style="margin-top: clamp(24px, 3vw, 40px);"></div>
     </div>
   </section>
@@ -835,10 +872,10 @@
   <section id="experience" data-show="video">
     <div class="wrap split">
       <div class="split-head reveal">
-        <p class="label">Experience</p>
-        <h2 class="display">What I do.</h2>
+        <p class="label" data-c="roles.video.experienceLabel">Experience</p>
+        <h2 class="display" data-c="roles.video.experienceHeading">What I do.</h2>
       </div>
-      <div>
+      <div id="cExpVideo">
         <article class="work-item reveal">
           <div class="work-top"><h3>Reels &amp; Social Edits</h3><span class="work-tag">Main work</span></div>
           <p class="work-role">Short-form editor</p>
@@ -866,9 +903,9 @@
   <!-- ============ REELS ============ -->
   <section id="reels" data-show="video">
     <div class="wrap">
-      <p class="label reveal">Selected work</p>
-      <h2 class="display reveal">Reels &amp; social.</h2>
-      <div class="filters reveal" role="group" aria-label="Filter reels" data-grid="reelsGrid" data-empty="gridEmpty">
+      <p class="label reveal" data-c="roles.video.workLabel">Selected work</p>
+      <h2 class="display reveal" data-c="roles.video.workHeading">Reels &amp; social.</h2>
+      <div class="filters reveal" role="group" aria-label="Filter reels" data-grid="reelsGrid" data-empty="gridEmpty" id="cReelFilters">
         <button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>
         <button class="filter" type="button" data-filter="social" aria-pressed="false">Social</button>
         <button class="filter" type="button" data-filter="wedding" aria-pressed="false">Wedding</button>
@@ -882,8 +919,8 @@
   <!-- ============ LONG FORM ============ -->
   <section id="films" data-show="video">
     <div class="wrap">
-      <p class="label reveal">Long form</p>
-      <h2 class="display reveal">Films &amp; stories.</h2>
+      <p class="label reveal" data-c="roles.video.filmsLabel">Long form</p>
+      <h2 class="display reveal" data-c="roles.video.filmsHeading">Films &amp; stories.</h2>
       <div class="grid-films" id="filmsGrid" style="margin-top: clamp(24px, 3vw, 40px);"></div>
     </div>
   </section>
@@ -891,10 +928,9 @@
   <!-- ============ TOOLS ============ -->
   <section id="tools" data-show="video">
     <div class="wrap">
-      <p class="label reveal">Toolkit</p>
-      <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);">Tools I edit with.</h2>
-      <!-- Confirm / edit this list to match what you actually use -->
-      <div class="tools reveal">
+      <p class="label reveal" data-c="roles.video.toolsLabel">Toolkit</p>
+      <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);" data-c="roles.video.toolsHeading">Tools I edit with.</h2>
+      <div class="tools reveal" id="cToolsVideo">
         <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10.15 8.42a2.93 2.93 0 00-1.18-.2 13.9 13.9 0 00-1.09.02v3.36l.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03a1.45 1.45 0 00-.93-1.46zM19.75.3H4.25A4.25 4.25 0 000 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.09 11.65c-.4.56-.96.98-1.61 1.22-.68.25-1.43.34-2.25.34l-.5-.01-.43-.01v3.21a.12.12 0 01-.11.14H5.82c-.08 0-.12-.04-.12-.13V6.42c0-.07.03-.11.1-.11l.56-.01.76-.02.87-.02.91-.01c.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.15.42.23.85.23 1.3 0 .86-.2 1.57-.6 2.13zm6.82-3.15v1.95c0 .08-.05.11-.16.11a4.35 4.35 0 00-1.92.37c-.19.09-.37.21-.51.37v5.1c0 .1-.04.14-.13.14h-1.97a.14.14 0 01-.16-.12v-5.58l-.01-.75-.02-.78c0-.23-.02-.45-.04-.68a.1.1 0 01.07-.11h1.78c.1 0 .18.07.2.16a3.03 3.03 0 01.13.92c.3-.35.67-.64 1.08-.86a3.1 3.1 0 011.52-.39c.07-.01.13.04.14.11v.04z"/></svg>Premiere Pro</span>
         <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.54 10.73c-.1-.31-.19-.61-.29-.92s-.19-.6-.27-.89c-.08-.28-.15-.54-.22-.78h-.02c-.09.43-.2.86-.34 1.29-.15.48-.3.98-.46 1.48-.13.51-.29.98-.44 1.4h2.54c-.06-.21-.14-.46-.23-.72-.09-.27-.18-.56-.27-.86zm8.58-.29c-.55-.03-1.07.26-1.33.76-.12.23-.19.47-.22.72h2.109c.26 0 .45 0 .57-.01.08-.01.16-.03.23-.08v-.1c0-.13-.021-.25-.061-.37-.178-.56-.708-.94-1.298-.92zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.9c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.04 16.511h-2.09c-.07.01-.14-.041-.16-.11l-.82-2.4H5.92l-.76 2.36c-.02.09-.1.15-.19.14H3.09c-.11 0-.14-.06-.11-.18L6.2 7.39c.03-.1.06-.19.1-.31.04-.21.06-.43.06-.65-.01-.05.03-.1.08-.11h2.59c.07 0 .12.03.13.08l3.65 10.25c.03.11.001.161-.1.161zm7.851-3.991c-.021.189-.031.33-.041.42-.01.07-.069.13-.14.13-.06 0-.17.01-.33.021-.159.02-.35.029-.579.029-.23 0-.471-.04-.73-.04h-3.17c.039.31.14.62.31.89.181.271.431.48.729.601.4.17.841.26 1.281.25.35-.011.699-.04 1.039-.11.311-.039.61-.119.891-.23.05-.039.08-.02.08.08v1.531c0 .039-.01.08-.021.119-.021.03-.04.051-.069.07-.32.14-.65.24-1 .3-.471.09-.94.13-1.42.12-.761 0-1.4-.12-1.92-.35-.49-.211-.921-.541-1.261-.95-.319-.39-.55-.83-.69-1.31-.14-.471-.209-.961-.209-1.461 0-.539.08-1.07.25-1.59.16-.5.41-.96.75-1.37.33-.4.739-.72 1.209-.95.471-.23 1.03-.31 1.67-.31.531-.01 1.06.09 1.55.31.41.18.77.45 1.05.8.26.34.47.72.601 1.14.129.4.189.81.189 1.22 0 .24-.01.45-.019.64z"/></svg>After Effects</span>
         <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.621 0 5.977.004c-1.37 0-2.756.345-3.762 1.11a4.925 4.925 0 0 0-1.61 2.003C.233 3.93 0 5.02 0 5.951l.012 12.2c.002 1.604.479 3.057 1.461 4.112.984 1.056 2.462 1.683 4.331 1.691L16.856 24c1.26.005 3.095-.036 4.303-.714 1.075-.605 2.025-1.556 2.497-2.984.278-.84.345-2.084.344-3.147l-.021-11.13c-.002-.888-.15-2.023-.547-2.934-.425-.976-1.181-1.815-2.322-2.425C20.353.26 19.123 0 17.622 0zm0 .93c1.378 0 2.538.295 3.04.565.977.523 1.544 1.166 1.889 1.96.315.721.47 1.793.473 2.572l.018 11.13c.002 1.013-.097 2.257-.298 2.86-.396 1.202-1.146 1.946-2.063 2.462-.814.457-2.612.593-3.82.588l-11.05-.044c-1.657-.007-2.832-.534-3.626-1.386-.792-.851-1.212-2.06-1.212-3.485L.999 5.95c0-.829.196-1.827.474-2.437.345-.757.75-1.207 1.365-1.674C3.585 1.27 4.868.97 6.08.97zm-5.66 3.423c-1.976.089-3.204 1.658-3.214 3.29.019 1.443 1.635 3.481 2.884 4.53.12.099.154.109.33.18.062.025.198-.047.327-.135.36-.245.993-.947 1.648-1.738a7.67 7.67 0 0 0 1.031-1.683c.409-.89.261-1.599.235-1.888a3.983 3.983 0 0 0-.99-1.692 3.36 3.36 0 0 0-2.251-.864zm4.172 7.922a10.185 10.185 0 0 0-3.244.61c-.15.058-.26.1-.374.17-.057.036-.11.135-.105.292.017.433.29 1.278.624 2.27.384 1.135 1.066 2.27 1.844 2.74a3.23 3.23 0 0 0 2.53.342c.832-.243 1.595-.868 1.962-1.546.986-1.818.19-3.548-1.121-4.417-.447-.296-1.133-.445-1.89-.46-.074 0-.15-.002-.226-.001zm-8.432.038a6.201 6.201 0 0 0-.752.047c-.596.078-.932.273-1.29.51a3.177 3.177 0 0 0-1.365 1.979c-.075.552-.086 1.053.033 1.507.433 1.389 1.326 2.222 2.847 2.452.636.028 1.37-.063 1.99-.45 1.269-.782 2.08-3.17 2.412-4.742.053-.176.035-.357-.013-.42-.005-.067-.044-.113-.19-.183-.398-.192-1.32-.417-2.375-.6a7.68 7.68 0 0 0-1.297-.1z"/></svg>DaVinci Resolve</span>
@@ -909,10 +945,9 @@
   <!-- ============ DESIGN: TOOLS ============ -->
   <section id="tools-design" data-show="design">
     <div class="wrap">
-      <p class="label reveal">Toolkit</p>
-      <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);">Tools I design with.</h2>
-      <!-- Confirm / edit this list to match what you actually use -->
-      <div class="tools reveal">
+      <p class="label reveal" data-c="roles.design.toolsLabel">Toolkit</p>
+      <h2 class="display reveal" style="margin-bottom: clamp(24px, 3vw, 40px);" data-c="roles.design.toolsHeading">Tools I design with.</h2>
+      <div class="tools reveal" id="cToolsDesign">
         <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.85 8.42c-.37-.15-.77-.21-1.18-.2-.26 0-.49 0-.68.01-.2-.01-.34 0-.41.01v3.36c.14.01.27.02.39.02h.53c.39 0 .78-.06 1.15-.18.32-.09.6-.28.82-.53.21-.25.31-.59.31-1.03.01-.31-.07-.62-.23-.89-.17-.26-.41-.46-.7-.57zM19.75.3H4.25C1.9.3 0 2.2 0 4.55v14.899c0 2.35 1.9 4.25 4.25 4.25h15.5c2.35 0 4.25-1.9 4.25-4.25V4.55C24 2.2 22.1.3 19.75.3zm-7.391 11.65c-.399.56-.959.98-1.609 1.22-.68.25-1.43.34-2.25.34-.24 0-.4 0-.5-.01s-.24-.01-.43-.01v3.209c.01.07-.04.131-.11.141H5.52c-.08 0-.12-.041-.12-.131V6.42c0-.07.03-.11.1-.11.17 0 .33 0 .56-.01.24-.01.49-.01.76-.02s.56-.01.87-.02c.31-.01.61-.01.91-.01.82 0 1.5.1 2.06.31.5.17.96.45 1.34.82.32.32.57.71.73 1.14.149.42.229.85.229 1.3.001.86-.199 1.57-.6 2.13zm7.091 3.89c-.28.4-.671.709-1.12.891-.49.209-1.09.318-1.811.318-.459 0-.91-.039-1.359-.129-.35-.061-.7-.17-1.02-.32-.07-.039-.121-.109-.111-.189v-1.74c0-.029.011-.07.041-.09.029-.02.06-.01.09.01.39.23.8.391 1.24.49.379.1.779.15 1.18.15.38 0 .65-.051.83-.141.16-.07.27-.24.27-.42 0-.141-.08-.27-.24-.4-.16-.129-.489-.279-.979-.471-.51-.18-.979-.42-1.42-.719-.31-.221-.569-.51-.761-.85-.159-.32-.239-.67-.229-1.021 0-.43.12-.84.341-1.21.25-.4.619-.72 1.049-.92.469-.239 1.059-.349 1.769-.349.41 0 .83.03 1.24.09.3.04.59.12.86.23.039.01.08.05.1.09.01.04.02.08.02.12v1.63c0 .04-.02.08-.05.1-.09.02-.14.02-.18 0-.3-.16-.62-.27-.96-.34-.37-.08-.74-.13-1.12-.13-.2-.01-.41.02-.601.07-.129.03-.24.1-.31.2-.05.08-.08.18-.08.27s.04.18.101.26c.09.11.209.2.34.27.229.12.47.23.709.33.541.18 1.061.43 1.541.73.33.209.6.49.789.83.16.318.24.67.23 1.029.011.471-.129.94-.389 1.331z"/></svg>Photoshop</span>
         <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>Illustrator</span>
         <span class="tool"><svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>Figma</span>
@@ -925,9 +960,9 @@
   <section id="contact">
     <div class="wrap">
       <div class="contact-block reveal">
-        <h2 class="display"><span data-show="video">Let's cut something great.</span><span data-show="design">Let's make something great.</span></h2>
-        <a class="contact-mail" href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a>
-        <div class="contact-socials">
+        <h2 class="display"><span data-show="video" data-c="roles.video.contactLine">Let's cut something great.</span><span data-show="design" data-c="roles.design.contactLine">Let's make something great.</span></h2>
+        <a class="contact-mail" id="cMail" href="mailto:cheerysaark@gmail.com">cheerysaark@gmail.com</a>
+        <div class="contact-socials" id="cSocials">
           <a class="pill" href="https://instagram.com/4o4_erro" target="_blank" rel="noopener noreferrer">Instagram @4o4_erro</a>
           <a class="pill pill--solid" href="mailto:cheerysaark@gmail.com">Email me</a>
           <a class="pill" href="https://wa.me/94703771851" target="_blank" rel="noopener noreferrer">
@@ -944,8 +979,8 @@
 <!-- ============ FOOTER ============ -->
 <footer>
   <div class="wrap footer-inner">
-    <span>© <span id="year">2026</span> Saarkesh — <span data-show="video">Video Editor</span><span data-show="design">Graphic Designer</span>, Colombo</span>
-    <span>Available for freelance work</span>
+    <span>© <span id="year">2026</span> <span data-c="site.name">Saarkesh</span> — <span data-show="video" data-c="roles.video.label">Video Editor</span><span data-show="design" data-c="roles.design.label">Graphic Designer</span><span id="cFootLoc">, Colombo</span></span>
+    <span id="cFootAvail" data-c="site.availableText">Available for freelance work</span>
   </div>
 </footer>
 
@@ -961,57 +996,218 @@
   </div>
 </div>
 
+<script src="tool-icons.js"></script>
+<script type="application/json" id="fallbackContent">{"version": 1, "site": {"name": "Saarkesh", "logo": "S.", "available": true, "availableText": "Available for freelance work", "hireText": "Hire me", "hireLink": "#contact", "email": "cheerysaark@gmail.com", "location": "Colombo, Sri Lanka", "portrait": "images/portrait.jpg", "portraitAlt": "Saarkesh, video editor and graphic designer based in Colombo", "greeting": "Hey, I'm Saarkesh.", "shareImage": "", "links": [{"type": "instagram", "label": "Instagram @4o4_erro", "url": "https://instagram.com/4o4_erro", "showInAbout": true}, {"type": "whatsapp", "label": "+94 703771851", "url": "https://wa.me/94703771851", "showInAbout": false}]}, "roles": {"video": {"label": "Video Editor", "seoTitle": "Saarkesh — Video Editor, Colombo", "seoDesc": "Saarkesh — video editor based in Colombo. Reels & social edits, wedding films, YouTube edits and storytelling videos.", "headline": "Video Editor Portfolio.", "intro": "Reels cut to the beat, wedding films with a story, and YouTube edits that keep people watching — made in Colombo by Saarkesh.", "skills": ["Reels", "Beat-synced Edits", "Sound Effects", "Wedding Films", "YouTube Edits", "Storytelling"], "bio": "I'm a video editor based in Colombo. Most of my work is reels and social media edits — cut tight to the audio, layered with sound effects, and finished with motion graphics that I'm honestly still leveling up on.\n\nI also edit wedding films and wedding reels, YouTube videos, and storytelling-style informative videos. I'm still learning, still improving, and I care a lot about pacing: making sure every second earns its place.\n\nIf your footage needs rhythm and structure, let's talk.", "focus": "Reels, social media edits, motion graphics", "contactLine": "Let's cut something great.", "experienceLabel": "Experience", "experienceHeading": "What I do.", "experience": [{"title": "Reels & Social Edits", "tag": "Main work", "role": "Short-form editor", "desc": "Beat-synced reels cut to the audio, layered with sound effects and intermediate motion graphics for Instagram and TikTok.", "hidden": false}, {"title": "Wedding Films", "tag": "Films", "role": "Wedding film & reel editor", "desc": "Full wedding film edits and highlight reels built around the emotion and pacing of the day, not just the best clips.", "hidden": false}, {"title": "YouTube Edits", "tag": "Long form", "role": "Long-form editor", "desc": "Clean, watchable YouTube edits — cuts, b-roll, captions and pacing that keep viewers to the end.", "hidden": false}, {"title": "Storytelling Videos", "tag": "Informative", "role": "Story-style editor", "desc": "Informative, story-driven videos where structure and narration carry the piece as much as the visuals.", "hidden": false}], "workLabel": "Selected work", "workHeading": "Reels & social.", "filmsLabel": "Long form", "filmsHeading": "Films & stories.", "toolsLabel": "Toolkit", "toolsHeading": "Tools I edit with.", "tools": [{"name": "Premiere Pro", "icon": "premiere-pro", "hidden": false}, {"name": "After Effects", "icon": "after-effects", "hidden": false}, {"name": "DaVinci Resolve", "icon": "davinci-resolve", "hidden": false}, {"name": "Photoshop", "icon": "photoshop", "hidden": false}, {"name": "CapCut", "icon": "capcut", "hidden": false}, {"name": "Audition", "icon": "audition", "hidden": false}]}, "design": {"label": "Graphic Designer", "seoTitle": "Saarkesh — Graphic Designer, Colombo", "seoDesc": "Saarkesh — graphic designer based in Colombo. Social media graphics, posters, logos and branding.", "headline": "Graphic Design Portfolio.", "intro": "Posters that stop the scroll, logos with a point of view, and social graphics that make a brand feel real — designed in Colombo by Saarkesh.", "skills": ["Social Graphics", "Posters", "Logo Design", "Branding", "Thumbnails", "Layouts"], "bio": "I'm also a graphic designer based in Colombo. I design social media graphics, posters, logos and brand visuals — clean layouts, strong type, and ideas that read at a glance.\n\nComing from video editing, I think a lot about rhythm and hierarchy: where the eye lands first and what it does next. I'm still learning, still improving, and I care about making every element earn its place.\n\nIf your brand needs a look that sticks, let's talk.", "focus": "Social graphics, posters, logos, branding", "contactLine": "Let's make something great.", "experienceLabel": "Experience", "experienceHeading": "What I design.", "experience": [{"title": "Social Media Graphics", "tag": "Main work", "role": "Social content designer", "desc": "Post, carousel and story designs that keep a brand looking consistent and easy to recognise across Instagram and beyond.", "hidden": false}, {"title": "Posters & Flyers", "tag": "Print + digital", "role": "Poster designer", "desc": "Event and promo posters with clear hierarchy, bold type and a layout that gets the message across in a glance.", "hidden": false}, {"title": "Logo & Branding", "tag": "Identity", "role": "Brand designer", "desc": "Logos and simple brand systems — colours, type and usage — so a small brand looks put together from day one.", "hidden": false}, {"title": "Thumbnails & Banners", "tag": "Digital", "role": "Thumbnail & banner designer", "desc": "YouTube thumbnails, covers and banners designed to be clicked, and to match the video they belong to.", "hidden": false}], "workLabel": "Selected work", "workHeading": "Design work.", "brandLabel": "Case studies", "brandHeading": "Branding.", "toolsLabel": "Toolkit", "toolsHeading": "Tools I design with.", "tools": [{"name": "Photoshop", "icon": "photoshop", "hidden": false}, {"name": "Illustrator", "icon": "pen", "hidden": false}, {"name": "Figma", "icon": "pen", "hidden": false}, {"name": "Canva", "icon": "pen", "hidden": false}]}}, "videoCats": [{"id": "social", "label": "Social"}, {"id": "wedding", "label": "Wedding"}, {"id": "motion", "label": "Motion"}], "designCats": [{"id": "social", "label": "Social"}, {"id": "posters", "label": "Posters"}, {"id": "logos", "label": "Logos"}], "videos": [{"id": "v01", "kind": "reel", "cat": "social", "title": "Eko Lens: Portrait Reel", "duration": "0:36", "url": "portfolio-videos/eko-portrait-reel.mp4", "thumb": "portfolio-videos/posters/eko-portrait-reel.jpg", "hidden": false}, {"id": "v02", "kind": "reel", "cat": "social", "title": "STM: Study Abroad Promo", "duration": "1:05", "url": "portfolio-videos/stm-final-compressed.mp4", "thumb": "portfolio-videos/posters/stm-final.jpg", "hidden": false}, {"id": "v03", "kind": "reel", "cat": "motion", "title": "AI Restaurant Search: App Demo", "duration": "0:19", "url": "portfolio-videos/ai-search-demo.mp4", "thumb": "portfolio-videos/posters/ai-search-demo.jpg", "hidden": false}, {"id": "v04", "kind": "reel", "cat": "motion", "title": "Video 1022", "duration": "0:21", "url": "portfolio-videos/1022.mp4", "thumb": "portfolio-videos/posters/1022.jpg", "hidden": false}, {"id": "v05", "kind": "reel", "cat": "social", "title": "Doctor Intro: Join Me for This Game", "duration": "1:20", "url": "portfolio-videos/final-out.mp4", "thumb": "portfolio-videos/posters/final-out.jpg", "hidden": false}, {"id": "v06", "kind": "reel", "cat": "social", "title": "Lifestyle Reel: Take 01", "duration": "0:35", "url": "portfolio-videos/reel-take-01.mp4", "thumb": "portfolio-videos/posters/reel-take-01.jpg", "hidden": false}, {"id": "v07", "kind": "reel", "cat": "social", "title": "Colour-Graded Lifestyle Reel", "duration": "1:01", "url": "portfolio-videos/reel-take-02.mp4", "thumb": "portfolio-videos/posters/reel-take-02.jpg", "hidden": false}, {"id": "v08", "kind": "reel", "cat": "social", "title": "Creator Talking Reel: Captioned Edit", "duration": "0:38", "url": "portfolio-videos/reel-take-03.mp4", "thumb": "portfolio-videos/posters/reel-take-03.jpg", "hidden": false}, {"id": "v09", "kind": "reel", "cat": "social", "title": "Kitchen Lifestyle Reel", "duration": "1:19", "url": "portfolio-videos/reel-take-04.mp4", "thumb": "portfolio-videos/posters/reel-take-04.jpg", "hidden": false}, {"id": "v10", "kind": "reel", "cat": "social", "title": "NMX: Lactose Myth Explainer", "duration": "0:51", "url": "portfolio-videos/reel-take-05.mp4", "thumb": "portfolio-videos/posters/reel-take-05.jpg", "hidden": false}, {"id": "v11", "kind": "reel", "cat": "social", "title": "Memories: Cinematic Edit", "duration": "0:40", "url": "portfolio-videos/memories-reel.mp4", "thumb": "portfolio-videos/posters/memories-reel.jpg", "hidden": false}, {"id": "v12", "kind": "reel", "cat": "social", "title": "NMX: Creatine Q&A with Dr Dumindu", "duration": "0:41", "url": "portfolio-videos/creatine-qa.mp4", "thumb": "portfolio-videos/posters/creatine-qa.jpg", "hidden": false}, {"id": "v13", "kind": "reel", "cat": "social", "title": "Lifestyle Reel 1105", "duration": "0:53", "url": "portfolio-videos/1105.mp4", "thumb": "portfolio-videos/posters/1105.jpg", "hidden": false}, {"id": "v14", "kind": "film", "cat": "social", "title": "Interact Club — officials board 2023/24", "duration": "4:55", "url": "portfolio-videos/interact-board-2023-24-compressed.mp4", "thumb": "portfolio-videos/posters/interact-board-2023-24.jpg", "hidden": false}], "designs": [{"id": "d01", "kind": "work", "cat": "social", "title": "Social Post 01", "label": "Social", "thumb": "images/design/social/social-01.png", "caption": "", "hidden": false}, {"id": "d02", "kind": "work", "cat": "social", "title": "Social Post 02", "label": "Social", "thumb": "images/design/social/social-02.png", "caption": "", "hidden": false}, {"id": "d03", "kind": "work", "cat": "social", "title": "Social Post 03", "label": "Social", "thumb": "images/design/social/social-03.png", "caption": "", "hidden": false}, {"id": "d04", "kind": "work", "cat": "posters", "title": "Poster 01", "label": "Poster", "thumb": "images/design/posters/poster-01.png", "caption": "", "hidden": false}, {"id": "d05", "kind": "work", "cat": "posters", "title": "Poster 02", "label": "Poster", "thumb": "images/design/posters/poster-02.png", "caption": "", "hidden": false}, {"id": "d06", "kind": "work", "cat": "posters", "title": "Poster 03", "label": "Poster", "thumb": "images/design/posters/poster-03.png", "caption": "", "hidden": false}, {"id": "d07", "kind": "work", "cat": "logos", "title": "Logo 01", "label": "Logo", "thumb": "images/design/logos/logo-01.png", "caption": "", "hidden": false}, {"id": "d08", "kind": "work", "cat": "logos", "title": "Logo 02", "label": "Logo", "thumb": "images/design/logos/logo-02.png", "caption": "", "hidden": false}, {"id": "d09", "kind": "brand", "cat": "branding", "title": "Brand Identity 01", "label": "Branding", "thumb": "images/design/branding/branding-01.png", "caption": "", "hidden": false}, {"id": "d10", "kind": "brand", "cat": "branding", "title": "Brand Identity 02", "label": "Branding", "thumb": "images/design/branding/branding-02.png", "caption": "", "hidden": false}], "layout": {"accent": "#37d67a", "headingFont": "Inter Tight", "defaultTheme": "dark", "radius": 18, "reelCols": 4, "designCols": 3, "reelStyle": "grid", "designStyle": "grid", "hoverPreview": true, "sections": {"video": [{"id": "about", "show": true}, {"id": "experience", "show": true}, {"id": "reels", "show": true}, {"id": "films", "show": true}, {"id": "tools", "show": true}, {"id": "contact", "show": true}], "design": [{"id": "about", "show": true}, {"id": "experience-design", "show": true}, {"id": "work", "show": true}, {"id": "branding", "show": true}, {"id": "tools-design", "show": true}, {"id": "contact", "show": true}]}}}</script>
 <script>
-(function () {
+/* =====================================================================
+   CONTENT — everything on this page comes from content.json, which the
+   dashboard (/admin) edits. The JSON above is only a fallback for when
+   content.json can't be loaded (for example opening the file directly).
+   ===================================================================== */
+function cGet(obj, path) {
+  return path.split('.').reduce(function (o, k) { return o == null ? o : o[k]; }, obj);
+}
+function cEsc(t) {
+  return String(t == null ? '' : t).replace(/[&<>"']/g, function (ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+/* Cloudinary images: ask for a web-sized, auto-format copy. Other URLs pass through. */
+function sized(url, w) {
+  if (!url || url.indexOf('res.cloudinary.com') === -1 || url.indexOf('/image/upload/') === -1) { return url; }
+  return url.replace('/image/upload/', '/image/upload/f_auto,q_auto,c_limit,w_' + w + '/');
+}
+function cSafeUrl(u) {
+  u = String(u || '').trim();
+  return /^(https?:|mailto:|tel:|#|\/|[\w.-]+(\/|$))/i.test(u) && !/^javascript:/i.test(u) ? u : '#';
+}
+
+var LINK_ICONS = {
+  whatsapp: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.2z"/></svg>'
+};
+
+function applyContent(C) {
+  var root = document.documentElement;
+  var L = C.layout || {};
+
+  /* plain text bindings: <el data-c="roles.video.headline"> */
+  Array.prototype.forEach.call(document.querySelectorAll('[data-c]'), function (el) {
+    var v = cGet(C, el.getAttribute('data-c'));
+    if (typeof v === 'string') { el.textContent = v; }
+  });
+
+  /* look */
+  if (L.accent) { root.style.setProperty('--green', L.accent); }
+  if (L.radius != null) { root.style.setProperty('--r-media', L.radius + 'px'); }
+  root.style.setProperty('--reel-cols', L.reelCols || 4);
+  root.style.setProperty('--design-cols', L.designCols || 3);
+  var css = '';
+  if (L.reelCols) { css += '@media (min-width: 1025px) { .grid-reels { grid-template-columns: repeat(' + L.reelCols + ', 1fr); } }\n'; }
+  if (L.designCols) { css += '@media (min-width: 701px) { .grid-designs { grid-template-columns: repeat(' + L.designCols + ', 1fr); } }\n'; }
+  if (L.headingFont && L.headingFont !== 'Inter Tight') {
+    var fam = L.headingFont.replace(/[^\w ]/g, '');
+    var link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(fam) + ':wght@500;700;800&display=swap';
+    document.head.appendChild(link);
+    css += ".display, .logo { font-family: '" + fam + "', 'Inter Tight', system-ui, sans-serif; }\n";
+  }
+  document.getElementById('layoutStyle').textContent = css;
+  var savedTheme = null; try { savedTheme = localStorage.getItem('theme'); } catch (e) {}
+  if (!savedTheme && L.defaultTheme) {
+    root.dataset.theme = L.defaultTheme === 'auto'
+      ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+      : L.defaultTheme;
+  }
+  document.getElementById('reelsGrid').classList.toggle('is-carousel', L.reelStyle === 'carousel');
+  document.getElementById('designGrid').classList.toggle('is-masonry', L.designStyle === 'masonry');
+
+  var S = C.site || {};
+  /* hero */
+  document.getElementById('cBadge').classList.toggle('c-off', !S.available);
+  document.getElementById('cFootAvail').classList.toggle('c-off', !S.available);
+  var hire = document.getElementById('cHire');
+  hire.textContent = S.hireText || 'Hire me';
+  hire.href = cSafeUrl(S.hireLink || '#contact');
+  if (!/^#/.test(hire.getAttribute('href'))) { hire.target = '_blank'; hire.rel = 'noopener noreferrer'; }
+  ['video', 'design'].forEach(function (r) {
+    var track = document.getElementById(r === 'video' ? 'mqVideo' : 'mqDesign');
+    var skills = (C.roles[r].skills || []);
+    track.innerHTML = skills.map(function (k) { return '<span>' + cEsc(k) + '</span><span class="sep">/</span>'; }).join('');
+    track.parentNode.classList.toggle('c-off', !skills.length);
+  });
+
+  /* about */
+  var img = document.getElementById('cPortrait');
+  if (S.portrait) { img.src = sized(S.portrait, 1000); }
+  if (S.portraitAlt) { img.alt = S.portraitAlt; }
+  ['video', 'design'].forEach(function (r) {
+    var box = document.getElementById(r === 'video' ? 'cBioVideo' : 'cBioDesign');
+    box.innerHTML = String(C.roles[r].bio || '').split(/\n\s*\n/).filter(Boolean).map(function (p) {
+      return '<p>' + cEsc(p.trim()).replace(/\n/g, '<br>') + '</p>';
+    }).join('');
+  });
+  var mail = S.email || '';
+  var facts = '';
+  if (S.location) { facts += '<div class="row"><dt>Location</dt><dd>' + cEsc(S.location) + '</dd></div>'; }
+  facts += '<div class="row"><dt>Focus</dt><dd><span data-show="video">' + cEsc(C.roles.video.focus) + '</span><span data-show="design">' + cEsc(C.roles.design.focus) + '</span></dd></div>';
+  if (mail) { facts += '<div class="row"><dt>Email</dt><dd><a href="mailto:' + cEsc(mail) + '">' + cEsc(mail) + '</a></dd></div>'; }
+  (S.links || []).forEach(function (l) {
+    if (!l.showInAbout || !l.url) { return; }
+    var name = l.type ? l.type.charAt(0).toUpperCase() + l.type.slice(1) : 'Link';
+    var text = String(l.label || l.url).replace(new RegExp('^' + name + '\\s*', 'i'), '');
+    facts += '<div class="row"><dt>' + cEsc(name) + '</dt><dd><a href="' + cEsc(cSafeUrl(l.url)) + '" target="_blank" rel="noopener noreferrer">' + cEsc(text) + '</a></dd></div>';
+  });
+  document.getElementById('cFacts').innerHTML = facts;
+  var loc = (S.location || '').split(',')[0].trim();
+  document.getElementById('cFootLoc').textContent = loc ? ', ' + loc : '';
+
+  /* experience cards */
+  ['video', 'design'].forEach(function (r) {
+    var box = document.getElementById(r === 'video' ? 'cExpVideo' : 'cExpDesign');
+    box.innerHTML = (C.roles[r].experience || []).filter(function (x) { return !x.hidden; }).map(function (x) {
+      return '<article class="work-item reveal"><div class="work-top"><h3>' + cEsc(x.title) + '</h3>' +
+        (x.tag ? '<span class="work-tag">' + cEsc(x.tag) + '</span>' : '') + '</div>' +
+        (x.role ? '<p class="work-role">' + cEsc(x.role) + '</p>' : '') +
+        (x.desc ? '<p>' + cEsc(x.desc) + '</p>' : '') + '</article>';
+    }).join('');
+  });
+
+  /* tools */
+  ['video', 'design'].forEach(function (r) {
+    var box = document.getElementById(r === 'video' ? 'cToolsVideo' : 'cToolsDesign');
+    box.innerHTML = (C.roles[r].tools || []).filter(function (t) { return !t.hidden; }).map(function (t) {
+      var icon = '';
+      if (t.icon && /[/.]/.test(t.icon)) {
+        icon = '<img class="tool-icon" src="' + cEsc(sized(t.icon, 64)) + '" alt="" aria-hidden="true">';
+      } else if (t.icon && window.TOOL_ICONS && window.TOOL_ICONS[t.icon]) {
+        icon = window.TOOL_ICONS[t.icon].replace('<svg ', '<svg class="tool-icon" ');
+      }
+      return '<span class="tool">' + icon + cEsc(t.name) + '</span>';
+    }).join('');
+  });
+
+  /* filters: built from the categories that actually have work in them */
+  function filters(id, cats, items) {
+    var used = {};
+    items.forEach(function (it) { if (!it.hidden) { used[it.cat] = true; } });
+    var html = '<button class="filter" type="button" data-filter="all" aria-pressed="true">All</button>';
+    (cats || []).forEach(function (c) {
+      if (used[c.id]) { html += '<button class="filter" type="button" data-filter="' + cEsc(c.id) + '" aria-pressed="false">' + cEsc(c.label) + '</button>'; }
+    });
+    document.getElementById(id).innerHTML = html;
+  }
+  filters('cReelFilters', C.videoCats, C.videos.filter(function (v) { return v.kind === 'reel'; }));
+  filters('cDesignFilters', C.designCats, C.designs.filter(function (d) { return d.kind !== 'brand'; }));
+
+  /* contact */
+  var m = document.getElementById('cMail');
+  m.textContent = mail; m.href = 'mailto:' + mail; m.classList.toggle('c-off', !mail);
+  var socials = (S.links || []).filter(function (l) { return l.url; }).map(function (l) {
+    var icon = LINK_ICONS[l.type] || '';
+    return '<a class="pill" href="' + cEsc(cSafeUrl(l.url)) + '" target="_blank" rel="noopener noreferrer">' + icon + (icon ? '<span>' + cEsc(l.label) + '</span>' : cEsc(l.label)) + '</a>';
+  });
+  if (mail) { socials.push('<a class="pill pill--solid" href="mailto:' + cEsc(mail) + '">Email me</a>'); }
+  document.getElementById('cSocials').innerHTML = socials.join('');
+
+  /* hide whole sections when they have nothing in them */
+  var hasReel = C.videos.some(function (v) { return !v.hidden && v.kind === 'reel'; });
+  var hasFilm = C.videos.some(function (v) { return !v.hidden && v.kind === 'film'; });
+  var hasWork = C.designs.some(function (d) { return !d.hidden && d.kind !== 'brand'; });
+  var hasBrand = C.designs.some(function (d) { return !d.hidden && d.kind === 'brand'; });
+  window.__emptySections = { reels: !hasReel, films: !hasFilm, work: !hasWork, branding: !hasBrand };
+}
+
+/* order + show/hide of sections, per portfolio (called on every role switch) */
+function applySections(C, role) {
+  var main = document.getElementById('main');
+  var list = (C.layout && C.layout.sections && C.layout.sections[role]) || [];
+  var empty = window.__emptySections || {};
+  list.forEach(function (sec) {
+    var el = document.getElementById(sec.id);
+    if (!el) { return; }
+    main.appendChild(el);
+    var off = !sec.show || !!empty[sec.id];
+    el.classList.toggle('c-off', off);
+    Array.prototype.forEach.call(document.querySelectorAll('.nav-links a[href="#' + sec.id + '"]'), function (a) {
+      a.parentNode.classList.toggle('c-off', off);
+    });
+  });
+}
+
+function startSite() {
+  var fallback = JSON.parse(document.getElementById('fallbackContent').textContent);
+  var started = false;
+  function go(C) {
+    if (started) { return; }
+    started = true;
+    try { applyContent(C); } catch (e) { console.error('content error', e); }
+    boot(C);
+    document.documentElement.classList.remove('c-loading');
+  }
+  /* live preview inside the dashboard: wait for the draft to be posted in */
+  var host = window.parent !== window ? window.parent : window.opener;
+  if (/[?&]preview=1/.test(location.search) && host) {
+    window.addEventListener('message', function (e) {
+      if (e.origin !== location.origin || !e.data || e.data.type !== 'portfolio-content') { return; }
+      go(e.data.content);
+    });
+    host.postMessage({ type: 'portfolio-ready' }, location.origin);
+    setTimeout(function () { go(fallback); }, 4000);
+    return;
+  }
+  fetch('content.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) { throw new Error(r.status); } return r.json(); })
+    .then(go)
+    .catch(function () { go(fallback); });
+}
+
+function boot(C) {
   'use strict';
 
-  /* =====================================================================
-     EDIT ME — every video on the page lives in this one array.
-     kind : 'reel' = 9:16 tile in "Reels & social", 'film' = 16:9 in "Films & stories"
-     cat  : 'social' | 'wedding' | 'motion'  (used by the filter buttons)
-     url  : a hosted file URL (GitHub release, e.g. https://github.com/.../releases/download/videos-v1/reel.mp4),
-            a local file ("portfolio-videos/reel.mp4") or a YouTube / Vimeo / Instagram link ("" shows a hint)
-     thumb: image path, e.g. "portfolio-videos/posters/reel.jpg" ("" shows a placeholder tile)
-     ===================================================================== */
-  var VIDEOS = [
-    /* ---- Reels (vertical) ---- */
-    { kind: 'reel', cat: 'social', title: 'Eko Lens: Portrait Reel', duration: '0:36', url: 'portfolio-videos/eko-portrait-reel.mp4', thumb: 'portfolio-videos/posters/eko-portrait-reel.jpg' },
-    { kind: 'reel', cat: 'social', title: 'STM: Study Abroad Promo', duration: '1:05', url: 'portfolio-videos/stm-final-compressed.mp4', thumb: 'portfolio-videos/posters/stm-final.jpg' },
-    { kind: 'reel', cat: 'motion', title: 'AI Restaurant Search: App Demo', duration: '0:19', url: 'portfolio-videos/ai-search-demo.mp4', thumb: 'portfolio-videos/posters/ai-search-demo.jpg' },
-    { kind: 'reel', cat: 'motion', title: 'Video 1022', duration: '0:21', url: 'portfolio-videos/1022.mp4', thumb: 'portfolio-videos/posters/1022.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Doctor Intro: Join Me for This Game', duration: '1:20', url: 'portfolio-videos/final-out.mp4', thumb: 'portfolio-videos/posters/final-out.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Lifestyle Reel: Take 01', duration: '0:35', url: 'portfolio-videos/reel-take-01.mp4', thumb: 'portfolio-videos/posters/reel-take-01.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Colour-Graded Lifestyle Reel', duration: '1:01', url: 'portfolio-videos/reel-take-02.mp4', thumb: 'portfolio-videos/posters/reel-take-02.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Creator Talking Reel: Captioned Edit', duration: '0:38', url: 'portfolio-videos/reel-take-03.mp4', thumb: 'portfolio-videos/posters/reel-take-03.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Kitchen Lifestyle Reel', duration: '1:19', url: 'portfolio-videos/reel-take-04.mp4', thumb: 'portfolio-videos/posters/reel-take-04.jpg' },
-    { kind: 'reel', cat: 'social', title: 'NMX: Lactose Myth Explainer', duration: '0:51', url: 'portfolio-videos/reel-take-05.mp4', thumb: 'portfolio-videos/posters/reel-take-05.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Memories: Cinematic Edit', duration: '0:40', url: 'portfolio-videos/memories-reel.mp4', thumb: 'portfolio-videos/posters/memories-reel.jpg' },
-    { kind: 'reel', cat: 'social', title: 'NMX: Creatine Q&A with Dr Dumindu', duration: '0:41', url: 'portfolio-videos/creatine-qa.mp4', thumb: 'portfolio-videos/posters/creatine-qa.jpg' },
-    { kind: 'reel', cat: 'social', title: 'Lifestyle Reel 1105', duration: '0:53', url: 'portfolio-videos/1105.mp4', thumb: 'portfolio-videos/posters/1105.jpg' },
+  var VIDEOS = C.videos.filter(function (v) { return !v.hidden; });
 
-    /* ---- Long form (landscape) ---- */
-    { kind: 'film', cat: 'social', title: 'Interact Club — officials board 2023/24', duration: '4:55', url: 'portfolio-videos/interact-board-2023-24-compressed.mp4', thumb: 'portfolio-videos/posters/interact-board-2023-24.jpg' }
-  ];
-
-  /* =====================================================================
-     EDIT ME — graphic design projects (the Graphic Designer portfolio).
-     kind : 'work' = tile in "Design work", 'brand' = wide tile in "Branding"
-     cat  : 'social' | 'posters' | 'logos'  (used by the filter buttons; ignored for 'brand')
-     label: small text shown at the right of the tile (e.g. 'Poster')
-     thumb: image path, e.g. "images/design/poster-01.jpg" ("" shows a placeholder tile)
-     ===================================================================== */
-  var DESIGNS = [
-    { kind: 'work', cat: 'social',  title: 'Social Post 01',  label: 'Social',  thumb: 'images/design/social/social-01.png' },
-    { kind: 'work', cat: 'social',  title: 'Social Post 02',  label: 'Social',  thumb: 'images/design/social/social-02.png' },
-    { kind: 'work', cat: 'social',  title: 'Social Post 03',  label: 'Social',  thumb: 'images/design/social/social-03.png' },
-    { kind: 'work', cat: 'posters', title: 'Poster 01',       label: 'Poster',  thumb: 'images/design/posters/poster-01.png' },
-    { kind: 'work', cat: 'posters', title: 'Poster 02',       label: 'Poster',  thumb: 'images/design/posters/poster-02.png' },
-    { kind: 'work', cat: 'posters', title: 'Poster 03',       label: 'Poster',  thumb: 'images/design/posters/poster-03.png' },
-    { kind: 'work', cat: 'logos',   title: 'Logo 01',         label: 'Logo',    thumb: 'images/design/logos/logo-01.png' },
-    { kind: 'work', cat: 'logos',   title: 'Logo 02',         label: 'Logo',    thumb: 'images/design/logos/logo-02.png' },
-    { kind: 'brand', cat: 'branding', title: 'Brand Identity 01', label: 'Branding', thumb: 'images/design/branding/branding-01.png' },
-    { kind: 'brand', cat: 'branding', title: 'Brand Identity 02', label: 'Branding', thumb: 'images/design/branding/branding-02.png' }
-  ];
+  var DESIGNS = C.designs.filter(function (d) { return !d.hidden; });
 
   /* ---------- helpers ---------- */
   var $ = function (s, c) { return (c || document).querySelector(s); };
@@ -1074,14 +1270,8 @@
 
   /* ---------- role switch: Video Editor / Graphic Designer ---------- */
   var META = {
-    video: {
-      title: 'Saarkesh — Video Editor, Colombo',
-      desc: 'Saarkesh — video editor based in Colombo. Reels & social edits, wedding films, YouTube edits and storytelling videos.'
-    },
-    design: {
-      title: 'Saarkesh — Graphic Designer, Colombo',
-      desc: 'Saarkesh — graphic designer based in Colombo. Social media graphics, posters, logos and branding.'
-    }
+    video: { title: C.roles.video.seoTitle, desc: C.roles.video.seoDesc },
+    design: { title: C.roles.design.seoTitle, desc: C.roles.design.seoDesc }
   };
   var roleBtns = $$('[data-role-btn]');
   var metaDesc = $('meta[name="description"]');
@@ -1093,6 +1283,7 @@
     document.title = META[role].title;
     if (metaDesc) { metaDesc.setAttribute('content', META[role].desc); }
     buildHero(heroTexts[role]);
+    applySections(C, role);
   }
   renderRole(root.dataset.role === 'design' ? 'design' : 'video');
 
@@ -1120,6 +1311,7 @@
     var el = document.createElement('article');
     el.className = 'tile reveal ' + (v.kind === 'reel' ? 'tile--reel' : 'tile--film');
     el.dataset.cat = v.cat;
+    el.dataset.url = v.url || '';
     el.style.setProperty('--i', i % 8);
 
     var btn = document.createElement('button');
@@ -1129,7 +1321,7 @@
     btn.setAttribute('data-cursor', 'play');
 
     var media = v.thumb
-      ? '<img src="' + v.thumb + '" alt="' + (v.title + ' — video thumbnail').replace(/"/g, '&quot;') + '" loading="lazy">'
+      ? '<img src="' + sized(v.thumb, 720) + '" alt="' + (v.title + ' — video thumbnail').replace(/"/g, '&quot;') + '" loading="lazy">'
       : '<span class="ph" aria-hidden="true"><b>' + v.title.charAt(0) + '</b></span>';
 
     btn.innerHTML = media +
@@ -1153,6 +1345,27 @@
     else { filmsGrid.appendChild(buildTile(v, i)); }
   });
 
+  /* ---------- hover preview: play the reel muted while the mouse is on it ---------- */
+  if (C.layout.hoverPreview && finePointer && !reduced) {
+    $$('.tile--reel, .tile--film', document).forEach(function (tile) {
+      var url = tile.dataset.url;
+      if (!/\.(mp4|webm|m4v)(\?|#|$)/i.test(url)) { return; }
+      var btn = tile.querySelector('.tile-btn');
+      var vid = null;
+      btn.addEventListener('mouseenter', function () {
+        vid = document.createElement('video');
+        vid.className = 'hover-vid';
+        vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'auto';
+        vid.src = url;
+        btn.insertBefore(vid, btn.querySelector('.play'));
+        var p = vid.play(); if (p && p.catch) { p.catch(function () {}); }
+      });
+      btn.addEventListener('mouseleave', function () {
+        if (vid) { vid.pause(); vid.removeAttribute('src'); vid.load(); vid.remove(); vid = null; }
+      });
+    });
+  }
+
   /* ---------- design tiles ---------- */
   function buildDesignTile(d, i) {
     var isBrand = d.kind === 'brand';
@@ -1168,7 +1381,7 @@
     btn.dataset.kind = 'design';
 
     var media = d.thumb
-      ? '<img src="' + d.thumb + '" alt="' + (d.title + ' — design').replace(/"/g, '&quot;') + '" loading="lazy">'
+      ? '<img src="' + sized(d.thumb, 1200) + '" alt="' + (d.title + ' — design').replace(/"/g, '&quot;') + '" loading="lazy">'
       : '<span class="ph" aria-hidden="true"><b>' + d.title.charAt(0) + '</b></span>';
     btn.innerHTML = media + '<span class="sr-only">View ' + d.title + '</span>';
 
@@ -1273,7 +1486,7 @@
         (hasLink
           ? '<p>Instagram posts can\'t be embedded here, but you can watch this one on Instagram.</p>' +
             '<a class="pill" href="' + link + '" target="_blank" rel="noopener noreferrer">Watch on Instagram</a>'
-          : '<p>No video link yet. Open <b>saarkesh-portfolio.html</b> in a text editor, find the <b>VIDEOS</b> array near the bottom, and paste a YouTube / Vimeo / Instagram URL into this entry.</p>') +
+          : '<p>This video is coming soon.</p>') +
         '</div>';
     }
 
@@ -1289,7 +1502,7 @@
     lastFocus = document.activeElement;
     popupTitle.textContent = d.title;
     if (d.thumb) {
-      popupRatio.innerHTML = '<img id="popupImg" src="' + d.thumb + '" alt="' + d.title.replace(/"/g, '&quot;') + '">';
+      popupRatio.innerHTML = '<img id="popupImg" src="' + sized(d.thumb, 2000) + '" alt="' + d.title.replace(/"/g, '&quot;') + '">';
       var img = document.getElementById('popupImg');
       var fit = function () {
         if (!img.naturalWidth || !img.naturalHeight) { return; }
@@ -1409,7 +1622,8 @@
         .catch(function (err) { console.warn('SW registration failed', err); });
     });
   }
-})();
+}
+startSite();
 </script>
 </body>
 </html>
