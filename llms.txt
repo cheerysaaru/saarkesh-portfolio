@@ -1,0 +1,27 @@
+# Saarkesh — Saark Creates
+
+> Saarkesh is a freelance full-stack web developer, video editor and graphic designer based in Colombo, Sri Lanka. He builds websites, web apps and online stores with React, Next.js, Laravel and Node.js, and handles hosting and deployment end to end. He is open to software engineering internships and freelance projects.
+
+Contact: cheerysaark@gmail.com · WhatsApp +94 70 377 1851 · GitHub https://github.com/cheerysaaru · Location: Colombo, Sri Lanka (works remotely worldwide)
+
+## Web development services
+- Business and company websites
+- Custom web apps (user accounts, dashboards, portals, quotation tools)
+- E-commerce and WhatsApp ordering websites
+- REST APIs and back ends (Laravel, Node.js)
+- Hosting, domain, DNS, SSL, Cloudflare and Linux server deployment
+- Website redesign and SEO
+
+## Selected projects
+- [Synnex Technology](https://synnex-technology.com): React + Vite website with a Laravel 11 API, user accounts, enquiries, admin dashboard; English/Tamil/Sinhala
+- [CheeryHub](https://cheeryhub.space): full-stack productivity PWA with Node.js, Prisma and web push
+- [Vallunar Groups](https://vallunar.com): corporate website in Next.js, TypeScript and Tailwind
+- [BiteMe Food & Products](https://bitemefoods.site): restaurant and e-commerce site with cart and WhatsApp checkout
+- Synnex quotation system: private Node.js internal tool (PM2, LiteSpeed)
+
+## Pages
+- [Web developer portfolio](https://saarkcreates.site/dev/): projects, services, skills, FAQ
+- [Video editor & graphic designer portfolio](https://saarkcreates.site/): reels, films, posters, branding
+
+## Skills
+JavaScript, TypeScript, React, Next.js, Vite, Tailwind CSS, Node.js, PHP, Laravel, REST APIs, MySQL, PostgreSQL, SQLite, Prisma, Git, Linux, CyberPanel, LiteSpeed, Cloudflare, PM2, Figma, Photoshop, Premiere Pro, After Effects

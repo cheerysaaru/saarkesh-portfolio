@@ -11,6 +11,17 @@
 <meta property="og:description" content="Saarkesh — video editor based in Colombo. Reels &amp; social edits, wedding films, YouTube edits and storytelling videos.">
 <meta property="og:type" content="website">
 <!--SEO-END-->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32x32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://saarkcreates.site/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:url" content="https://saarkcreates.site/">
+<meta property="og:image" content="https://saarkcreates.site/images/portrait.jpg">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Person","@id":"https://saarkcreates.site/#person","name":"Saarkesh","url":"https://saarkcreates.site/","image":"https://saarkcreates.site/images/portrait.jpg","jobTitle":["Video Editor","Graphic Designer","Web Developer"],"address":{"@type":"PostalAddress","addressLocality":"Colombo","addressCountry":"LK"},"email":"mailto:cheerysaark@gmail.com","sameAs":["https://github.com/cheerysaaru","https://instagram.com/4o4_erro","https://saarkcreates.site/dev/"]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -229,6 +240,9 @@
     transition: background-color 0.25s ease, color 0.25s ease;
   }
   .role-switch button:hover { color: var(--fg); }
+  .role-switch .role-link { display: inline-flex; align-items: center; min-height: 34px; padding: 0 16px; border-radius: 999px; color: var(--muted); font-weight: 700; font-size: 0.875rem; white-space: nowrap; text-decoration: none; transition: color 0.25s ease; }
+  .role-switch .role-link:hover { color: var(--fg); }
+  @media (max-width: 700px) { .role-switch .role-link { padding: 0 11px; font-size: 0.8125rem; } }
   .role-switch button[aria-pressed="true"] { background: var(--fg); color: var(--on-fg); }
   .role-switch button:focus-visible { border-radius: 999px; }
   .role-switch .short { display: none; }
@@ -722,6 +736,7 @@
       <div class="role-switch" role="group" aria-label="Choose portfolio">
         <button type="button" data-role-btn="video" aria-pressed="true"><span class="full">Video Editor</span><span class="short">Video</span></button>
         <button type="button" data-role-btn="design" aria-pressed="false"><span class="full">Graphic Designer</span><span class="short">Design</span></button>
+        <a class="role-link" href="dev/index.html"><span class="full">Developer</span><span class="short">Dev</span></a>
       </div>
     </div>
     <nav aria-label="Primary">
