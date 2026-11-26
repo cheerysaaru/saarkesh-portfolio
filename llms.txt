@@ -1,6 +1,6 @@
 # Saarkesh — Saark Creates
 
-> Saarkesh is a freelance full-stack web developer, video editor and graphic designer based in Colombo, Sri Lanka. He builds websites, web apps and online stores with React, Next.js, Laravel and Node.js, and handles hosting and deployment end to end. He is open to software engineering internships and freelance projects.
+> Saarkesh is a full-stack software developer based in Colombo, Sri Lanka. Software is his main work; he also does video editing and graphic design. He builds websites, web apps and online stores with React, Next.js, Laravel and Node.js, and handles hosting and deployment end to end. He is open to full-stack software engineering roles (including internships) and freelance projects.
 
 Contact: cheerysaark@gmail.com · WhatsApp +94 70 377 1851 · GitHub https://github.com/cheerysaaru · Location: Colombo, Sri Lanka (works remotely worldwide)
 
